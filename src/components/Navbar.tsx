@@ -1,0 +1,96 @@
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Menu, X, Shield } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+const navLinks = [
+  { label: "Home", href: "#" },
+  { label: "Exams", href: "#exams" },
+  { label: "AI Features", href: "#ai-features" },
+  { label: "SSB Prep", href: "#ssb" },
+  { label: "About", href: "#about" },
+];
+
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <motion.nav
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="fixed top-0 left-0 right-0 z-50 bg-primary/90 backdrop-blur-md border-b border-gold/20"
+    >
+      <div className="container mx-auto px-4 lg:px-8">
+        <div className="flex items-center justify-between h-16 lg:h-20">
+          <a href="#" className="flex items-center gap-2">
+            <Shield className="h-8 w-8 text-gold" />
+            <span className="font-display text-xl font-bold text-primary-foreground tracking-wide">
+              DefencePrep<span className="text-gold">AI</span>
+            </span>
+          </a>
+
+          <div className="hidden lg:flex items-center gap-8">
+            {navLinks.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                className="text-sm font-medium text-primary-foreground/80 hover:text-gold transition-colors duration-200"
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+
+          <div className="hidden lg:flex items-center gap-3">
+            <Button variant="ghost" className="text-primary-foreground/80 hover:text-gold hover:bg-gold/10">
+              Log In
+            </Button>
+            <Button className="bg-gold text-accent-foreground hover:bg-gold-light font-semibold shadow-gold">
+              Get Started Free
+            </Button>
+          </div>
+
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="lg:hidden text-primary-foreground"
+          >
+            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
+
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="lg:hidden pb-4"
+          >
+            <div className="flex flex-col gap-3">
+              {navLinks.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="text-primary-foreground/80 hover:text-gold py-2 transition-colors"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {link.label}
+                </a>
+              ))}
+              <div className="flex flex-col gap-2 pt-2 border-t border-gold/20">
+                <Button variant="ghost" className="text-primary-foreground/80 hover:text-gold hover:bg-gold/10 justify-start">
+                  Log In
+                </Button>
+                <Button className="bg-gold text-accent-foreground hover:bg-gold-light font-semibold">
+                  Get Started Free
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </div>
+    </motion.nav>
+  );
+};
+
+export default Navbar;
