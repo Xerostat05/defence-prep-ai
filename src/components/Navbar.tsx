@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Menu, X, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navLinks = [
   { label: "Home", href: "#" },
@@ -13,6 +15,8 @@ const navLinks = [
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <motion.nav
@@ -43,12 +47,25 @@ const Navbar = () => {
           </div>
 
           <div className="hidden lg:flex items-center gap-3">
-            <Button variant="ghost" className="text-primary-foreground/80 hover:text-gold hover:bg-gold/10">
-              Log In
-            </Button>
-            <Button className="bg-gold text-accent-foreground hover:bg-gold-light font-semibold shadow-gold">
-              Get Started Free
-            </Button>
+            {user ? (
+              <>
+                <Button variant="ghost" className="text-primary-foreground/80 hover:text-gold hover:bg-gold/10" onClick={() => navigate("/dashboard")}>
+                  Dashboard
+                </Button>
+                <Button className="bg-gold text-accent-foreground hover:bg-gold-light font-semibold shadow-gold" onClick={() => { signOut(); }}>
+                  Log Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" className="text-primary-foreground/80 hover:text-gold hover:bg-gold/10" onClick={() => navigate("/auth")}>
+                  Log In
+                </Button>
+                <Button className="bg-gold text-accent-foreground hover:bg-gold-light font-semibold shadow-gold" onClick={() => navigate("/auth")}>
+                  Get Started Free
+                </Button>
+              </>
+            )}
           </div>
 
           <button
@@ -78,12 +95,25 @@ const Navbar = () => {
                 </a>
               ))}
               <div className="flex flex-col gap-2 pt-2 border-t border-gold/20">
-                <Button variant="ghost" className="text-primary-foreground/80 hover:text-gold hover:bg-gold/10 justify-start">
-                  Log In
-                </Button>
-                <Button className="bg-gold text-accent-foreground hover:bg-gold-light font-semibold">
-                  Get Started Free
-                </Button>
+                {user ? (
+                  <>
+                    <Button variant="ghost" className="text-primary-foreground/80 hover:text-gold hover:bg-gold/10 justify-start" onClick={() => { navigate("/dashboard"); setIsOpen(false); }}>
+                      Dashboard
+                    </Button>
+                    <Button className="bg-gold text-accent-foreground hover:bg-gold-light font-semibold" onClick={() => { signOut(); setIsOpen(false); }}>
+                      Log Out
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="ghost" className="text-primary-foreground/80 hover:text-gold hover:bg-gold/10 justify-start" onClick={() => { navigate("/auth"); setIsOpen(false); }}>
+                      Log In
+                    </Button>
+                    <Button className="bg-gold text-accent-foreground hover:bg-gold-light font-semibold" onClick={() => { navigate("/auth"); setIsOpen(false); }}>
+                      Get Started Free
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>
