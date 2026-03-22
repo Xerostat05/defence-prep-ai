@@ -1,8 +1,16 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { BookOpen, Target, BarChart3, Brain, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Shield, LogOut } from "lucide-react";
+import Navbar from "@/components/Navbar";
+
+const dashboardItems = [
+  { title: "Mock Tests", desc: "AI-generated practice tests for NDA, CDS, AFCAT", icon: Target, path: "/mock-test", color: "bg-gold/10 text-gold" },
+  { title: "Study Planner", desc: "Get a personalized AI study plan for your exam", icon: BookOpen, path: "/study-planner", color: "bg-secondary/10 text-secondary" },
+  { title: "Performance Analysis", desc: "Track scores, accuracy, and improvement trends", icon: BarChart3, path: "/analysis", color: "bg-primary/10 text-primary" },
+  { title: "AI Mentor", desc: "Chat with OliveBot for instant guidance and doubt solving", icon: Brain, path: "#", color: "bg-gold/10 text-gold", hint: "Use the chat widget →" },
+];
 
 const Dashboard = () => {
   const { user, loading, signOut } = useAuth();
@@ -22,33 +30,31 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <nav className="border-b border-border bg-card px-4 lg:px-8 h-16 flex items-center justify-between">
-        <a href="/" className="flex items-center gap-2">
-          <Shield className="h-7 w-7 text-gold" />
-          <span className="font-display text-lg font-bold text-foreground">
-            DefencePrep<span className="text-gold">AI</span>
-          </span>
-        </a>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground hidden sm:inline">{user?.email}</span>
-          <Button variant="ghost" size="sm" onClick={() => { signOut(); navigate("/"); }} className="gap-2">
-            <LogOut className="h-4 w-4" /> Log Out
-          </Button>
+      <Navbar />
+      <main className="container mx-auto px-4 pt-24 pb-12">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="font-display text-3xl font-bold text-foreground">
+              Welcome, {user?.user_metadata?.full_name || "Aspirant"}!
+            </h1>
+            <p className="text-muted-foreground text-sm">Your defence exam preparation hub</p>
+          </div>
         </div>
-      </nav>
 
-      <main className="container mx-auto px-4 py-12">
-        <h1 className="font-display text-3xl font-bold text-foreground mb-2">
-          Welcome, {user?.user_metadata?.full_name || "Aspirant"}!
-        </h1>
-        <p className="text-muted-foreground mb-8">Your dashboard is being built. Start exploring soon!</p>
-
-        <div className="grid md:grid-cols-3 gap-6">
-          {["Mock Tests", "AI Mentor", "SSB Practice"].map((item) => (
-            <div key={item} className="bg-card rounded-xl border border-border p-6 shadow-card text-center">
-              <h3 className="font-display text-lg font-semibold text-foreground mb-2">{item}</h3>
-              <p className="text-sm text-muted-foreground">Coming soon</p>
-            </div>
+        <div className="grid md:grid-cols-2 gap-6">
+          {dashboardItems.map((item) => (
+            <button
+              key={item.title}
+              onClick={() => item.path !== "#" && navigate(item.path)}
+              className="bg-card rounded-xl border border-border p-6 shadow-card hover:shadow-card-hover transition-all text-left group"
+            >
+              <div className={`p-3 rounded-xl w-fit mb-4 ${item.color}`}>
+                <item.icon className="h-7 w-7" />
+              </div>
+              <h3 className="font-display text-lg font-semibold text-foreground mb-1">{item.title}</h3>
+              <p className="text-sm text-muted-foreground">{item.desc}</p>
+              {item.hint && <p className="text-xs text-gold mt-2">{item.hint}</p>}
+            </button>
           ))}
         </div>
       </main>

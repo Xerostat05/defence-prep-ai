@@ -78,9 +78,9 @@ const Auth = () => {
         <div className="bg-card rounded-2xl shadow-card-hover p-8 border border-border">
           <div className="text-center mb-8">
             <a href="/" className="inline-flex items-center gap-2 mb-4">
-              <Shield className="h-8 w-8 text-gold" />
+              <Leaf className="h-8 w-8 text-gold" />
               <span className="font-display text-xl font-bold text-foreground">
-                DefencePrep<span className="text-gold">AI</span>
+                Olive<span className="text-gold">Wings</span>
               </span>
             </a>
             <h1 className="font-display text-2xl font-bold text-foreground">

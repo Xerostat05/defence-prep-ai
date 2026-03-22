@@ -46,7 +46,7 @@ const HeroSection = () => {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="text-lg md:text-xl text-primary-foreground/70 max-w-2xl mx-auto mb-10 font-body"
           >
-            India's smartest platform for NDA, CDS, AFCAT & SSB preparation. 
+            Olive Wings — India's smartest platform for NDA, CDS, AFCAT & SSB preparation. 
             Powered by Agentic AI that adapts to your strengths and weaknesses.
           </motion.p>
 

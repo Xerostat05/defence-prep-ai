@@ -42,7 +42,7 @@ const ResetPassword = () => {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
         <div className="bg-card rounded-2xl shadow-card-hover p-8 border border-border">
           <div className="text-center mb-8">
-            <Shield className="h-8 w-8 text-gold mx-auto mb-4" />
+            <Leaf className="h-8 w-8 text-gold mx-auto mb-4" />
             <h1 className="font-display text-2xl font-bold text-foreground">Set New Password</h1>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">

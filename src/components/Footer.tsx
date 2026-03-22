@@ -53,7 +53,7 @@ const Footer = () => {
 
         <div className="border-t border-primary-foreground/10 pt-6 text-center">
           <p className="text-sm text-primary-foreground/30 font-body">
-            © 2026 DefencePrepAI. All rights reserved. Not affiliated with any government entity.
+            © 2026 Olive Wings. All rights reserved. Not affiliated with any government entity.
           </p>
         </div>
       </div>
