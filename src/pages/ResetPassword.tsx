@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Shield, Lock, Eye, EyeOff } from "lucide-react";
+import { Leaf, Lock, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,7 +42,7 @@ const ResetPassword = () => {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
         <div className="bg-card rounded-2xl shadow-card-hover p-8 border border-border">
           <div className="text-center mb-8">
-            <Shield className="h-8 w-8 text-gold mx-auto mb-4" />
+            <Leaf className="h-8 w-8 text-gold mx-auto mb-4" />
             <h1 className="font-display text-2xl font-bold text-foreground">Set New Password</h1>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">

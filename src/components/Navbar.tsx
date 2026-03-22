@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Menu, X, Shield } from "lucide-react";
+import { Menu, X, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -27,10 +27,10 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
-          <a href="#" className="flex items-center gap-2">
-            <Shield className="h-8 w-8 text-gold" />
+          <a href="/" className="flex items-center gap-2">
+            <Leaf className="h-8 w-8 text-gold" />
             <span className="font-display text-xl font-bold text-primary-foreground tracking-wide">
-              DefencePrep<span className="text-gold">AI</span>
+              Olive<span className="text-gold">Wings</span>
             </span>
           </a>
 

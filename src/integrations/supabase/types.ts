@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mock_tests: {
+        Row: {
+          created_at: string
+          duration_minutes: number
+          exam_type: string
+          id: string
+          questions: Json
+          title: string
+          total_marks: number
+        }
+        Insert: {
+          created_at?: string
+          duration_minutes?: number
+          exam_type: string
+          id?: string
+          questions?: Json
+          title: string
+          total_marks?: number
+        }
+        Update: {
+          created_at?: string
+          duration_minutes?: number
+          exam_type?: string
+          id?: string
+          questions?: Json
+          title?: string
+          total_marks?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -43,6 +97,86 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      study_plans: {
+        Row: {
+          created_at: string
+          end_date: string | null
+          exam_type: string
+          id: string
+          plan_data: Json
+          start_date: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string | null
+          exam_type: string
+          id?: string
+          plan_data?: Json
+          start_date?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string | null
+          exam_type?: string
+          id?: string
+          plan_data?: Json
+          start_date?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      test_attempts: {
+        Row: {
+          answers: Json
+          completed_at: string
+          correct_answers: number
+          id: string
+          mock_test_id: string
+          score: number
+          time_taken_seconds: number
+          total_questions: number
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          completed_at?: string
+          correct_answers?: number
+          id?: string
+          mock_test_id: string
+          score?: number
+          time_taken_seconds?: number
+          total_questions?: number
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          completed_at?: string
+          correct_answers?: number
+          id?: string
+          mock_test_id?: string
+          score?: number
+          time_taken_seconds?: number
+          total_questions?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_attempts_mock_test_id_fkey"
+            columns: ["mock_test_id"]
+            isOneToOne: false
+            referencedRelation: "mock_tests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
