@@ -1,4 +1,4 @@
-import { Shield } from "lucide-react";
+import { Leaf } from "lucide-react";
 
 const Footer = () => {
   return (
