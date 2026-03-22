@@ -7,9 +7,9 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Shield className="h-6 w-6 text-gold" />
+              <Leaf className="h-6 w-6 text-gold" />
               <span className="font-display text-lg font-bold text-primary-foreground">
-                DefencePrep<span className="text-gold">AI</span>
+                Olive<span className="text-gold">Wings</span>
               </span>
             </div>
             <p className="text-sm text-primary-foreground/50 font-body">
