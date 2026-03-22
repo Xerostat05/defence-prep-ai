@@ -13,7 +13,7 @@ const Footer = () => {
               </span>
             </div>
             <p className="text-sm text-primary-foreground/50 font-body">
-              India's AI-powered platform for defence exam & SSB preparation.
+              India's AI-powered platform for defence exam & SSB preparation by Olive Wings.
             </p>
           </div>
 
