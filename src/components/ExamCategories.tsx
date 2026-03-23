@@ -12,6 +12,7 @@ const exams = [
 ];
 
 const ExamCategories = () => {
+  const navigate = useNavigate();
   return (
     <section id="exams" className="py-20 lg:py-28 bg-background">
       <div className="container mx-auto px-4">
