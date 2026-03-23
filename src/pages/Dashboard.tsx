@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { BookOpen, Target, BarChart3, Brain, LogOut } from "lucide-react";
+import { BookOpen, Target, BarChart3, Brain, LogOut, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 
