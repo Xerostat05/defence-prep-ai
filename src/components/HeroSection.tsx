@@ -60,6 +60,7 @@ const HeroSection = () => {
           >
             <Button
               size="lg"
+              onClick={() => navigate("/auth")}
               className="bg-gold text-accent-foreground hover:bg-gold-light font-semibold text-base px-8 py-6 shadow-gold animate-pulse-gold"
             >
               Start Preparing Now
@@ -68,6 +69,7 @@ const HeroSection = () => {
             <Button
               size="lg"
               variant="outline"
+              onClick={() => document.getElementById("ai-features")?.scrollIntoView({ behavior: "smooth" })}
               className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 text-base px-8 py-6"
             >
               Explore Features

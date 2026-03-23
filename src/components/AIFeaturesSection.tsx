@@ -39,7 +39,8 @@ const AIFeaturesSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.5 }}
-              className="group relative bg-card rounded-xl p-6 lg:p-8 border border-border shadow-card hover:shadow-card-hover transition-all duration-300"
+              onClick={() => navigate(`/feature/${feature.slug}`)}
+              className="group relative bg-card rounded-xl p-6 lg:p-8 border border-border shadow-card hover:shadow-card-hover transition-all duration-300 cursor-pointer"
             >
               <div className="p-3 rounded-xl bg-gold/10 w-fit mb-5 group-hover:bg-gold/20 transition-colors">
                 <feature.icon className="h-7 w-7 text-gold" />
