@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const CTASection = () => {
+  const navigate = useNavigate();
   return (
     <section className="py-20 lg:py-28 bg-muted/50 relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.03]">
@@ -26,6 +28,7 @@ const CTASection = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button
               size="lg"
+              onClick={() => navigate("/auth")}
               className="bg-gold text-accent-foreground hover:bg-gold-light font-semibold text-base px-10 py-6 shadow-gold"
             >
               Start Free Trial
@@ -34,6 +37,7 @@ const CTASection = () => {
             <Button
               size="lg"
               variant="outline"
+              onClick={() => navigate("/dashboard")}
               className="border-foreground/20 text-foreground hover:bg-foreground/5 text-base px-10 py-6"
             >
               Talk to AI Mentor

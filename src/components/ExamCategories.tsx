@@ -1,52 +1,18 @@
 import { motion } from "framer-motion";
 import { BookOpen, Shield, Swords, Plane, Anchor, Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const exams = [
-  {
-    icon: Swords,
-    name: "NDA",
-    full: "National Defence Academy",
-    subjects: ["Maths", "GAT", "SSB"],
-    color: "from-navy to-navy-light",
-  },
-  {
-    icon: Shield,
-    name: "CDS",
-    full: "Combined Defence Services",
-    subjects: ["English", "GK", "Maths"],
-    color: "from-olive to-olive-light",
-  },
-  {
-    icon: Plane,
-    name: "AFCAT",
-    full: "Air Force Common Admission Test",
-    subjects: ["GK", "English", "Maths", "Reasoning"],
-    color: "from-navy-light to-olive",
-  },
-  {
-    icon: Anchor,
-    name: "INET",
-    full: "Indian Navy Entrance Test",
-    subjects: ["English", "Reasoning", "GK", "Maths"],
-    color: "from-navy to-olive-light",
-  },
-  {
-    icon: Users,
-    name: "SSB Interview",
-    full: "Services Selection Board",
-    subjects: ["OIR", "TAT", "WAT", "SRT", "GD", "PI"],
-    color: "from-olive to-navy",
-  },
-  {
-    icon: BookOpen,
-    name: "CAPF",
-    full: "Central Armed Police Forces",
-    subjects: ["GS", "Essay", "Comprehension"],
-    color: "from-olive-light to-navy-light",
-  },
+  { icon: Swords, name: "NDA", full: "National Defence Academy", subjects: ["Maths", "GAT", "SSB"], color: "from-navy to-navy-light", slug: "nda" },
+  { icon: Shield, name: "CDS", full: "Combined Defence Services", subjects: ["English", "GK", "Maths"], color: "from-olive to-olive-light", slug: "cds" },
+  { icon: Plane, name: "AFCAT", full: "Air Force Common Admission Test", subjects: ["GK", "English", "Maths", "Reasoning"], color: "from-navy-light to-olive", slug: "afcat" },
+  { icon: Anchor, name: "INET", full: "Indian Navy Entrance Test", subjects: ["English", "Reasoning", "GK", "Maths"], color: "from-navy to-olive-light", slug: "inet" },
+  { icon: Users, name: "SSB Interview", full: "Services Selection Board", subjects: ["OIR", "TAT", "WAT", "SRT", "GD", "PI"], color: "from-olive to-navy", slug: "ssb-interview" },
+  { icon: BookOpen, name: "CAPF", full: "Central Armed Police Forces", subjects: ["GS", "Essay", "Comprehension"], color: "from-olive-light to-navy-light", slug: "capf" },
 ];
 
 const ExamCategories = () => {
+  const navigate = useNavigate();
   return (
     <section id="exams" className="py-20 lg:py-28 bg-background">
       <div className="container mx-auto px-4">
@@ -74,6 +40,7 @@ const ExamCategories = () => {
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.5 }}
               whileHover={{ y: -6, scale: 1.02 }}
+              onClick={() => navigate(`/exam/${exam.slug}`)}
               className="group relative overflow-hidden rounded-xl bg-card shadow-card hover:shadow-card-hover transition-all duration-300 cursor-pointer border border-border"
             >
               <div className={`absolute inset-0 bg-gradient-to-br ${exam.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
