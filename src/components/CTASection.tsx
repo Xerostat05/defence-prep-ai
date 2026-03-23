@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
 const CTASection = () => {
+  const navigate = useNavigate();
   return (
     <section className="py-20 lg:py-28 bg-muted/50 relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.03]">
