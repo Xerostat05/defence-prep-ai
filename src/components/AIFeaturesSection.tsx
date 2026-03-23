@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Bot, Brain, Target, BarChart3, Zap, MessageCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const features = [
   {
