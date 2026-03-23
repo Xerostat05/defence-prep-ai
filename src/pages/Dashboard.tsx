@@ -1,13 +1,14 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { BookOpen, Target, BarChart3, Brain, LogOut } from "lucide-react";
+import { BookOpen, Target, BarChart3, Brain, LogOut, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 
 const dashboardItems = [
   { title: "Mock Tests", desc: "AI-generated practice tests for NDA, CDS, AFCAT", icon: Target, path: "/mock-test", color: "bg-gold/10 text-gold" },
   { title: "Study Planner", desc: "Get a personalized AI study plan for your exam", icon: BookOpen, path: "/study-planner", color: "bg-secondary/10 text-secondary" },
+  { title: "Study Materials", desc: "Curated notes & resources for all defence exams", icon: FileText, path: "/study-materials", color: "bg-olive/10 text-olive" },
   { title: "Performance Analysis", desc: "Track scores, accuracy, and improvement trends", icon: BarChart3, path: "/analysis", color: "bg-primary/10 text-primary" },
   { title: "AI Mentor", desc: "Chat with OliveBot for instant guidance and doubt solving", icon: Brain, path: "#", color: "bg-gold/10 text-gold", hint: "Use the chat widget →" },
 ];

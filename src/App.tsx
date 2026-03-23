@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import StudyPlanner from "./pages/StudyPlanner";
 import MockTest from "./pages/MockTest";
 import Analysis from "./pages/Analysis";
+import StudyMaterials from "./pages/StudyMaterials";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/study-planner" element={<StudyPlanner />} />
             <Route path="/mock-test" element={<MockTest />} />
             <Route path="/analysis" element={<Analysis />} />
+            <Route path="/study-materials" element={<StudyMaterials />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
