@@ -3,42 +3,12 @@ import { Bot, Brain, Target, BarChart3, Zap, MessageCircle } from "lucide-react"
 import { useNavigate } from "react-router-dom";
 
 const features = [
-  {
-    icon: Bot,
-    title: "AI Chatbot Mentor",
-    description:
-      "24/7 intelligent chatbot trained on defence exam patterns. Ask doubts, get explanations, and receive personalized guidance instantly.",
-  },
-  {
-    icon: Brain,
-    title: "Agentic AI Study Planner",
-    description:
-      "Our AI agent creates and adapts your daily study plan based on your performance, weak areas, and exam date countdown.",
-  },
-  {
-    icon: Target,
-    title: "Smart Mock Tests",
-    description:
-      "AI-generated mock tests that adapt difficulty in real-time. Every test is unique and calibrated to push your limits.",
-  },
-  {
-    icon: BarChart3,
-    title: "Performance Analytics",
-    description:
-      "Deep AI-driven analysis of your test results. Track progress, identify weak topics, and get actionable improvement strategies.",
-  },
-  {
-    icon: Zap,
-    title: "Instant Answer Evaluation",
-    description:
-      "Write answers for SSB or descriptive exams and get AI-powered evaluation with scoring, feedback, and model answers.",
-  },
-  {
-    icon: MessageCircle,
-    title: "AI Interview Simulator",
-    description:
-      "Practice SSB personal interviews with our AI. Get real-time feedback on your responses, body language tips, and confidence scoring.",
-  },
+  { icon: Bot, title: "AI Chatbot Mentor", slug: "ai-chatbot", description: "24/7 intelligent chatbot trained on defence exam patterns. Ask doubts, get explanations, and receive personalized guidance instantly." },
+  { icon: Brain, title: "Agentic AI Study Planner", slug: "study-planner", description: "Our AI agent creates and adapts your daily study plan based on your performance, weak areas, and exam date countdown." },
+  { icon: Target, title: "Smart Mock Tests", slug: "mock-tests", description: "AI-generated mock tests that adapt difficulty in real-time. Every test is unique and calibrated to push your limits." },
+  { icon: BarChart3, title: "Performance Analytics", slug: "performance-analytics", description: "Deep AI-driven analysis of your test results. Track progress, identify weak topics, and get actionable improvement strategies." },
+  { icon: Zap, title: "Instant Answer Evaluation", slug: "answer-evaluation", description: "Write answers for SSB or descriptive exams and get AI-powered evaluation with scoring, feedback, and model answers." },
+  { icon: MessageCircle, title: "AI Interview Simulator", slug: "interview-simulator", description: "Practice SSB personal interviews with our AI. Get real-time feedback on your responses, body language tips, and confidence scoring." },
 ];
 
 const AIFeaturesSection = () => {
