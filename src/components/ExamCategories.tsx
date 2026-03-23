@@ -40,6 +40,7 @@ const ExamCategories = () => {
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.5 }}
               whileHover={{ y: -6, scale: 1.02 }}
+              onClick={() => navigate(`/exam/${exam.slug}`)}
               className="group relative overflow-hidden rounded-xl bg-card shadow-card hover:shadow-card-hover transition-all duration-300 cursor-pointer border border-border"
             >
               <div className={`absolute inset-0 bg-gradient-to-br ${exam.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
