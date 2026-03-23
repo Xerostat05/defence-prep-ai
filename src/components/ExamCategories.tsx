@@ -3,48 +3,12 @@ import { BookOpen, Shield, Swords, Plane, Anchor, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const exams = [
-  {
-    icon: Swords,
-    name: "NDA",
-    full: "National Defence Academy",
-    subjects: ["Maths", "GAT", "SSB"],
-    color: "from-navy to-navy-light",
-  },
-  {
-    icon: Shield,
-    name: "CDS",
-    full: "Combined Defence Services",
-    subjects: ["English", "GK", "Maths"],
-    color: "from-olive to-olive-light",
-  },
-  {
-    icon: Plane,
-    name: "AFCAT",
-    full: "Air Force Common Admission Test",
-    subjects: ["GK", "English", "Maths", "Reasoning"],
-    color: "from-navy-light to-olive",
-  },
-  {
-    icon: Anchor,
-    name: "INET",
-    full: "Indian Navy Entrance Test",
-    subjects: ["English", "Reasoning", "GK", "Maths"],
-    color: "from-navy to-olive-light",
-  },
-  {
-    icon: Users,
-    name: "SSB Interview",
-    full: "Services Selection Board",
-    subjects: ["OIR", "TAT", "WAT", "SRT", "GD", "PI"],
-    color: "from-olive to-navy",
-  },
-  {
-    icon: BookOpen,
-    name: "CAPF",
-    full: "Central Armed Police Forces",
-    subjects: ["GS", "Essay", "Comprehension"],
-    color: "from-olive-light to-navy-light",
-  },
+  { icon: Swords, name: "NDA", full: "National Defence Academy", subjects: ["Maths", "GAT", "SSB"], color: "from-navy to-navy-light", slug: "nda" },
+  { icon: Shield, name: "CDS", full: "Combined Defence Services", subjects: ["English", "GK", "Maths"], color: "from-olive to-olive-light", slug: "cds" },
+  { icon: Plane, name: "AFCAT", full: "Air Force Common Admission Test", subjects: ["GK", "English", "Maths", "Reasoning"], color: "from-navy-light to-olive", slug: "afcat" },
+  { icon: Anchor, name: "INET", full: "Indian Navy Entrance Test", subjects: ["English", "Reasoning", "GK", "Maths"], color: "from-navy to-olive-light", slug: "inet" },
+  { icon: Users, name: "SSB Interview", full: "Services Selection Board", subjects: ["OIR", "TAT", "WAT", "SRT", "GD", "PI"], color: "from-olive to-navy", slug: "ssb-interview" },
+  { icon: BookOpen, name: "CAPF", full: "Central Armed Police Forces", subjects: ["GS", "Essay", "Comprehension"], color: "from-olive-light to-navy-light", slug: "capf" },
 ];
 
 const ExamCategories = () => {
