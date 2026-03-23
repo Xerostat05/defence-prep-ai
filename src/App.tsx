@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import StudyPlanner from "./pages/StudyPlanner";
 import MockTest from "./pages/MockTest";
 import Analysis from "./pages/Analysis";
+import StudyMaterials from "./pages/StudyMaterials";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
