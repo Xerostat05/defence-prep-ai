@@ -12,6 +12,7 @@ const features = [
 ];
 
 const AIFeaturesSection = () => {
+  const navigate = useNavigate();
   return (
     <section id="ai-features" className="py-20 lg:py-28 bg-muted/50">
       <div className="container mx-auto px-4">
