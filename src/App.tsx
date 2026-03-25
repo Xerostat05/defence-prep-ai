@@ -16,6 +16,7 @@ import ExamDetail from "./pages/ExamDetail";
 import AIFeatureDetail from "./pages/AIFeatureDetail";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
