@@ -11,6 +11,7 @@ const dashboardItems = [
   { title: "Study Materials", desc: "Curated notes & resources for all defence exams", icon: FileText, path: "/study-materials", color: "bg-olive/10 text-olive" },
   { title: "Performance Analysis", desc: "Track scores, accuracy, and improvement trends", icon: BarChart3, path: "/analysis", color: "bg-primary/10 text-primary" },
   { title: "AI Mentor", desc: "Chat with OliveBot for instant guidance and doubt solving", icon: Brain, path: "#", color: "bg-gold/10 text-gold", hint: "Use the chat widget →" },
+  { title: "Profile Settings", desc: "Update your name, avatar, and target exam preference", icon: Settings, path: "/profile", color: "bg-secondary/10 text-secondary" },
 ];
 
 const Dashboard = () => {
