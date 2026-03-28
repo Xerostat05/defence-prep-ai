@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, X, Send, Bot, User } from "lucide-react";
+import { MessageCircle, X, Send, Bot, User, Sparkles, BookOpen, Target, BarChart3, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -8,15 +8,23 @@ import ReactMarkdown from "react-markdown";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
+const AGENT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-agent`;
+
+const quickActions = [
+  { label: "📚 Study Plan", prompt: "Create a study plan for NDA exam, 4 weeks, 5 hours/day" },
+  { label: "❓ Practice Qs", prompt: "Give me 3 practice questions for NDA Mathematics" },
+  { label: "🎖️ SSB Tips", prompt: "Help me prepare for SSB interview WAT test" },
+  { label: "🎯 Today's Plan", prompt: "What should I study today for my defence exam?" },
+];
 
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([
-    { role: "assistant", content: "Hi! I'm **OliveBot** 🫒 — your AI mentor for defence exam prep. Ask me anything about NDA, CDS, AFCAT, SSB or study strategies!" },
+    { role: "assistant", content: "Hi! I'm **OliveBot** 🫒 — your agentic AI mentor.\n\nI can:\n- 📚 **Create study plans** tailored to your exam\n- ❓ **Generate practice questions** on any topic\n- 📊 **Analyze your performance** and suggest improvements\n- 🎖️ **Coach you for SSB** (WAT/TAT/SRT/GD/PI)\n- 🎯 **Give daily recommendations**\n\nTry the quick actions below or ask me anything!" },
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showQuickActions, setShowQuickActions] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -25,23 +33,25 @@ const ChatWidget = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+  const sendMessage = async (overrideInput?: string) => {
+    const text = overrideInput || input.trim();
+    if (!text || isLoading) return;
     if (!user) {
       setMessages(prev => [...prev, { role: "assistant", content: "Please **log in** to chat with me! Click the button below." }]);
       return;
     }
 
-    const userMsg: Msg = { role: "user", content: input.trim() };
+    const userMsg: Msg = { role: "user", content: text };
     setInput("");
+    setShowQuickActions(false);
     setMessages(prev => [...prev, userMsg]);
     setIsLoading(true);
 
     let assistantSoFar = "";
-    const allMessages = [...messages.filter(m => m.role !== "assistant" || messages.indexOf(m) !== 0), userMsg];
+    const allMessages = [...messages.filter((_, i) => i !== 0), userMsg];
 
     try {
-      const resp = await fetch(CHAT_URL, {
+      const resp = await fetch(AGENT_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -108,13 +118,19 @@ const ChatWidget = () => {
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="fixed bottom-20 right-4 z-50 w-[360px] max-w-[calc(100vw-2rem)] h-[500px] max-h-[70vh] bg-card border border-border rounded-2xl shadow-card-hover flex flex-col overflow-hidden"
+            className="fixed bottom-20 right-4 z-50 w-[380px] max-w-[calc(100vw-2rem)] h-[540px] max-h-[75vh] bg-card border border-border rounded-2xl shadow-card-hover flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-primary border-b border-border">
               <div className="flex items-center gap-2">
-                <Bot className="h-5 w-5 text-gold" />
-                <span className="font-display font-bold text-primary-foreground text-sm">OliveBot AI Mentor</span>
+                <div className="relative">
+                  <Bot className="h-5 w-5 text-gold" />
+                  <Sparkles className="h-3 w-3 text-gold absolute -top-1 -right-1" />
+                </div>
+                <div>
+                  <span className="font-display font-bold text-primary-foreground text-sm">OliveBot AI Agent</span>
+                  <span className="block text-[10px] text-primary-foreground/40 -mt-0.5">Powered by Agentic AI</span>
+                </div>
               </div>
               <button onClick={() => setIsOpen(false)} className="text-primary-foreground/60 hover:text-primary-foreground">
                 <X className="h-4 w-4" />
@@ -130,13 +146,13 @@ const ChatWidget = () => {
                       <Bot className="h-3 w-3 text-gold" />
                     </div>
                   )}
-                  <div className={`max-w-[80%] rounded-xl px-3 py-2 text-sm ${
+                  <div className={`max-w-[85%] rounded-xl px-3 py-2 text-sm ${
                     msg.role === "user"
                       ? "bg-gold text-accent-foreground"
                       : "bg-muted text-foreground"
                   }`}>
                     {msg.role === "assistant" ? (
-                      <div className="prose prose-sm max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1">
+                      <div className="prose prose-sm max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_strong]:text-foreground">
                         <ReactMarkdown>{msg.content}</ReactMarkdown>
                       </div>
                     ) : msg.content}
@@ -148,13 +164,30 @@ const ChatWidget = () => {
                   )}
                 </div>
               ))}
+
+              {/* Quick Actions */}
+              {showQuickActions && messages.length <= 1 && (
+                <div className="grid grid-cols-2 gap-2 pt-2">
+                  {quickActions.map((action) => (
+                    <button
+                      key={action.label}
+                      onClick={() => sendMessage(action.prompt)}
+                      className="text-xs bg-gold/10 text-gold border border-gold/20 rounded-lg px-3 py-2 hover:bg-gold/20 transition-colors text-left font-medium"
+                    >
+                      {action.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {isLoading && messages[messages.length - 1]?.role === "user" && (
                 <div className="flex gap-2 items-center">
                   <div className="w-6 h-6 rounded-full bg-gold/20 flex items-center justify-center">
                     <Bot className="h-3 w-3 text-gold" />
                   </div>
-                  <div className="bg-muted rounded-xl px-3 py-2 text-sm text-muted-foreground">
-                    <span className="animate-pulse">Thinking...</span>
+                  <div className="bg-muted rounded-xl px-3 py-2 text-sm text-muted-foreground flex items-center gap-2">
+                    <Sparkles className="h-3 w-3 text-gold animate-spin" />
+                    <span className="animate-pulse">Agent thinking...</span>
                   </div>
                 </div>
               )}
@@ -172,7 +205,7 @@ const ChatWidget = () => {
                   <input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="Ask about NDA, CDS, SSB..."
+                    placeholder="Ask anything or try: 'Make me a study plan'..."
                     className="flex-1 bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gold/50 text-foreground placeholder:text-muted-foreground"
                     disabled={isLoading}
                   />
@@ -191,9 +224,14 @@ const ChatWidget = () => {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-4 right-4 z-50 w-14 h-14 rounded-full bg-gold text-accent-foreground shadow-gold flex items-center justify-center hover:bg-gold-light transition-colors"
+        className="fixed bottom-4 right-4 z-50 w-14 h-14 rounded-full bg-gold text-accent-foreground shadow-gold flex items-center justify-center hover:bg-gold-light transition-colors relative"
       >
         {isOpen ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
+        {!isOpen && (
+          <span className="absolute -top-1 -right-1 w-4 h-4 bg-secondary rounded-full flex items-center justify-center">
+            <Sparkles className="h-2.5 w-2.5 text-secondary-foreground" />
+          </span>
+        )}
       </motion.button>
     </>
   );
