@@ -44,7 +44,7 @@ const SSBSection = () => {
               transition={{ delay: i * 0.1, duration: 0.5 }}
               whileHover={{ scale: 1.03 }}
               className="group bg-primary-foreground/5 backdrop-blur-sm border border-primary-foreground/10 rounded-xl p-6 hover:bg-primary-foreground/10 transition-all duration-300 cursor-pointer"
-              onClick={() => window.location.href = "/exam/ssb-interview"}
+              onClick={() => window.location.href = ["OIR Tests", "TAT Practice", "WAT Trainer", "SRT Bank"].includes(module.name) ? "/ssb-practice" : "/exam/ssb-interview"}
             >
               <module.icon className="h-8 w-8 text-gold mb-4" />
               <h3 className="font-display text-lg font-bold text-primary-foreground mb-2">
