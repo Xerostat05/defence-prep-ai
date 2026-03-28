@@ -17,6 +17,7 @@ import AIFeatureDetail from "./pages/AIFeatureDetail";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
+import SSBPractice from "./pages/SSBPractice";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
