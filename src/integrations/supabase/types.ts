@@ -38,6 +38,54 @@ export type Database = {
         }
         Relationships: []
       }
+      flashcards: {
+        Row: {
+          answer: string
+          created_at: string
+          difficulty: string
+          ease_factor: number
+          exam_type: string
+          id: string
+          interval_days: number
+          last_reviewed_at: string | null
+          next_review_at: string
+          question: string
+          repetitions: number
+          subject: string
+          user_id: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          difficulty?: string
+          ease_factor?: number
+          exam_type?: string
+          id?: string
+          interval_days?: number
+          last_reviewed_at?: string | null
+          next_review_at?: string
+          question: string
+          repetitions?: number
+          subject?: string
+          user_id: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          difficulty?: string
+          ease_factor?: number
+          exam_type?: string
+          id?: string
+          interval_days?: number
+          last_reviewed_at?: string | null
+          next_review_at?: string
+          question?: string
+          repetitions?: number
+          subject?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       mock_tests: {
         Row: {
           created_at: string
