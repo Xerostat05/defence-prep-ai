@@ -14,6 +14,7 @@ const dashboardItems = [
   { title: "Study Materials", desc: "Curated notes & resources for all defence exams", icon: FileText, path: "/study-materials", color: "bg-olive/10 text-olive" },
   { title: "Performance Analysis", desc: "Track scores, accuracy, and improvement trends", icon: BarChart3, path: "/analysis", color: "bg-primary/10 text-primary" },
   { title: "SSB Practice", desc: "Timed WAT, TAT, SRT with AI evaluation", icon: Brain, path: "/ssb-practice", color: "bg-gold/10 text-gold" },
+  { title: "AI Flashcards", desc: "Spaced repetition cards adapted to your weak areas", icon: Brain, path: "/flashcards", color: "bg-gold/10 text-gold" },
   { title: "Profile Settings", desc: "Update your name, avatar, and target exam", icon: Settings, path: "/profile", color: "bg-secondary/10 text-secondary" },
 ];
 

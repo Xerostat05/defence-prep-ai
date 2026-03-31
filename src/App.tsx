@@ -18,6 +18,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import SSBPractice from "./pages/SSBPractice";
+import Flashcards from "./pages/Flashcards";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/ssb-practice" element={<SSBPractice />} />
+            <Route path="/flashcards" element={<Flashcards />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
