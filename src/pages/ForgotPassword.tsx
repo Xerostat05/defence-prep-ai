@@ -39,7 +39,7 @@ const ForgotPassword = () => {
         </div>
         <div className="bg-card rounded-2xl shadow-card-hover p-8 border border-border">
           <div className="text-center mb-8">
-            <Leaf className="h-8 w-8 text-gold mx-auto mb-4" />
+            <img src="/favicon.png" alt="Olive Wings" className="h-8 w-8 mx-auto mb-4" />
             <h1 className="font-display text-2xl font-bold text-foreground">Reset Password</h1>
             <p className="text-muted-foreground text-sm mt-1">Enter your email to receive a reset link</p>
           </div>
