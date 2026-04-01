@@ -28,7 +28,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           <a href="/" className="flex items-center gap-2">
-            <Leaf className="h-8 w-8 text-gold" />
+            <img src="/favicon.png" alt="Olive Wings" className="h-8 w-8" />
             <span className="font-display text-xl font-bold text-primary-foreground tracking-wide">
               Olive<span className="text-gold">Wings</span>
             </span>
