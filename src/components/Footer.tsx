@@ -1,4 +1,4 @@
-import { Leaf } from "lucide-react";
+
 
 const Footer = () => {
   return (
@@ -7,7 +7,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Leaf className="h-6 w-6 text-gold" />
+              <img src="/favicon.png" alt="Olive Wings" className="h-6 w-6" />
               <span className="font-display text-lg font-bold text-primary-foreground">
                 Olive<span className="text-gold">Wings</span>
               </span>
