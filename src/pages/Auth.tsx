@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Leaf, Mail, Lock, User, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -78,7 +78,7 @@ const Auth = () => {
         <div className="bg-card rounded-2xl shadow-card-hover p-8 border border-border">
           <div className="text-center mb-8">
             <a href="/" className="inline-flex items-center gap-2 mb-4">
-              <Leaf className="h-8 w-8 text-gold" />
+              <img src="/favicon.png" alt="Olive Wings" className="h-8 w-8" />
               <span className="font-display text-xl font-bold text-foreground">
                 Olive<span className="text-gold">Wings</span>
               </span>
