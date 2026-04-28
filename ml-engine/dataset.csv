@@ -1,0 +1,280 @@
+text,label,score
+"He organized a village blood donation camp by coordinating with local hospitals and mobilizing youth.",Leadership,0.95
+"The student noticed the fire and immediately used the extinguisher while calling the fire brigade.",Initiative,0.90
+"He stayed calm during the trek accident and provided first aid to his friend before seeking help.",Effective Intelligence,0.85
+"She divided the project tasks among team members based on their strengths to meet the deadline.",Organizing Ability,0.88
+"When the boat started leaking he used his shirt to plug the hole and kept rowing to the shore.",Resourcefulness,0.82
+"He waited for the teacher to tell him what to do when the experiment failed.",Initiative,0.20
+"He felt nervous and left the stage when the audience started whispering.",Self Confidence,0.15
+"He convinced the angry villagers to allow the survey team to enter by explaining the benefits.",Power of Expression,0.80
+"During the group task he listened to everyone and suggested a middle path that everyone accepted.",Cooperation,0.85
+"He practiced daily for 4 hours to improve his running time and finally cleared the physical test.",Determination,0.92
+"The captain blamed the weather for the team's poor performance in the final match.",Sense of Responsibility,0.10
+"He used a broken branch and his muffler to create a temporary splint for the fractured leg.",Resourcefulness,0.88
+"She successfully balanced her semester exams and the national level debate competition.",Stamina,0.80
+"He easily made friends with the new students and helped them adjust to the hostel life.",Social Adaptability,0.85
+"He gave up on the math problem after trying it once and said it was too hard.",Determination,0.25
+"He took the lead in the group discussion and ensured every member got a chance to speak.",Leadership,0.90
+"As a team leader, he motivated his juniors to complete the relief work despite heavy rain.",Leadership,0.94
+"He stood at the back and let others take all the decisions during the group task.",Leadership,0.15
+"Upon seeing a road accident, he took the victim to the hospital in his own car immediately.",Initiative,0.95
+"He decided to start a library in his village and collected books from city residents.",Initiative,0.88
+"He ignored the leaking tap in the hostel, thinking someone else would fix it.",Initiative,0.10
+"He solved the complex technical glitch by using basic principles when advanced tools failed.",Effective Intelligence,0.90
+"She accurately estimated the resources needed for the 5-day college fest without any waste.",Effective Intelligence,0.87
+"He got confused and panicked when the trekking map was lost in the woods.",Effective Intelligence,0.20
+"He meticulously planned the logistics for the NCC camp, including food and transport.",Organizing Ability,0.92
+"She managed the guest list and catering for her sister's wedding efficiently within a budget.",Organizing Ability,0.85
+"His room and desk were always cluttered and he often forgot where his keys were.",Organizing Ability,0.15
+"When the car broke down in a remote area, he used a stone and wire to fix the accelerator cable.",Resourcefulness,0.90
+"He used waste plastic bottles to create a vertical garden for his balcony.",Resourcefulness,0.80
+"He sat by the road and cried when his bicycle chain broke during the journey.",Resourcefulness,0.10
+"Despite several failures in the entrance exam, he analyzed his mistakes and cleared it on the third attempt.",Determination,0.95
+"She completed the marathon despite a minor ankle sprain midway through the race.",Determination,0.88
+"He quit the football team because the training sessions were too tiring for him.",Determination,0.15
+"He spoke clearly and logically during the debate, convincing the judges of his point of view.",Power of Expression,0.92
+"She explained the complex scientific concept using simple analogies that everyone understood.",Power of Expression,0.85
+"He stammered and could not find the right words when asked a simple question by the teacher.",Power of Expression,0.20
+"He volunteered to work extra hours to help his colleague finish the pending reports.",Cooperation,0.88
+"During the tug of war, he coordinated the rhythm of the team to ensure a collective pull.",Cooperation,0.90
+"He refused to share his notes with his classmates even when they missed school due to illness.",Cooperation,0.10
+"He admitted his mistake in the accounts and stayed late to rectify the error.",Sense of Responsibility,0.92
+"As the class monitor, he ensured everyone followed the rules even when the teacher was away.",Sense of Responsibility,0.85
+"He lied to his parents about his low marks to avoid getting scolded.",Sense of Responsibility,0.15
+"He was the first to volunteer for the disaster relief operations in the neighboring state.",Social Effectiveness,0.90
+"She mentored her juniors in the coding club and helped them win the inter-college hackathon.",Social Effectiveness,0.88
+"He avoided talking to his neighbors and kept to himself all the time.",Social Effectiveness,0.20
+"He maintained a steady pace throughout the 10km cross-country race and finished in the top five.",Stamina,0.90
+"She worked for 14 hours straight to ensure the software launch was successful without any bugs.",Stamina,0.87
+"He got tired and sat down after walking just two kilometers during the school picnic.",Stamina,0.15
+"He felt confident in his preparation and handled the rapid-fire questions with a smile.",Self Confidence,0.92
+"She walked onto the stage and delivered her speech without any hesitation or fear.",Self Confidence,0.90
+"He was trembling and sweating during the mock interview despite knowing the answers.",Self Confidence,0.20
+"He quickly adapted to the new military training schedule and made many friends.",Social Adaptability,0.90
+"She adjusted well to the cultural differences when she moved to a different state for her job.",Social Adaptability,0.85
+"He found it very difficult to talk to people who didn't share his political views.",Social Adaptability,0.15
+"He took the initiative to fix the broken fence before the cattle could escape.",Initiative,0.88
+"She started a campaign to clean the local park and gathered 50 volunteers.",Initiative,0.92
+"He spent the entire weekend playing video games instead of preparing for the Monday test.",Sense of Responsibility,0.10
+"He used a wooden plank to bridge the gap in the trail for his cycling group.",Resourcefulness,0.85
+"She persuaded the management to install solar panels by presenting a cost-benefit analysis.",Power of Expression,0.90
+"He blamed his teammates for the project's failure during the final presentation.",Cooperation,0.12
+"He arranged the logistics for the science exhibition by delegating roles to his classmates.",Organizing Ability,0.89
+"The girl noticed a child drowning and jumped in to save him without any delay.",Initiative,0.94
+"He planned a surprise party for his parents by coordinating with all the relatives.",Organizing Ability,0.82
+"The soldier remained at his post during the heavy shelling to provide cover for his unit.",Sense of Responsibility,0.96
+"He decided to teach the underprivileged kids in his colony during his summer break.",Social Effectiveness,0.87
+"She used an old saree to make a temporary stretcher for the injured hiker.",Resourcefulness,0.89
+"He convinced his father to let him join the army by explaining his passion and career growth.",Power of Expression,0.84
+"The student leader organized a strike but failed to maintain discipline among the protesters.",Leadership,0.30
+"He managed to finish the assignment even though the electricity was out for six hours.",Determination,0.85
+"She kept her cool when the computer crashed just before the final submission.",Effective Intelligence,0.88
+"He refused to help his teammates during the obstacle course because he was tired.",Cooperation,0.08
+"He designed a low-cost irrigation system for his family farm using scrap pipes.",Resourcefulness,0.91
+"She spoke with such conviction that the entire crowd voted in her favor.",Power of Expression,0.93
+"He stayed up all night to study for the exam he had neglected for weeks.",Stamina,0.70
+"The captain stood his ground even when the opponent team tried to intimidate him.",Self Confidence,0.94
+"He hid the broken vase so his mother wouldn't find out he was playing inside.",Sense of Responsibility,0.12
+"She adjusted to the harsh climate of the training academy without complaining.",Social Adaptability,0.89
+"He took charge of the kitchen when the cook didn't show up for the party.",Organizing Ability,0.84
+"He saved his pocket money for a year to buy a bicycle for his younger brother.",Determination,0.88
+"He sat silently in the group discussion even though he knew the topic well.",Self Confidence,0.18
+"She organized a tree plantation drive in her school and planted 200 saplings.",Initiative,0.91
+"He found a way to open the locked door using a credit card when the keys were lost.",Resourcefulness,0.82
+"He spent his entire salary on luxury items and had no money for the monthly rent.",Sense of Responsibility,0.05
+"She mentored the new joinees in the office and helped them settle in quickly.",Social Adaptability,0.87
+"He led the hiking group through the forest by using a compass and a map.",Leadership,0.92
+"He couldn't explain his idea to the team and got frustrated during the meeting.",Power of Expression,0.22
+"She remained cheerful even when the team lost the final match by a narrow margin.",Social Adaptability,0.90
+"He took the responsibility of cleaning the entire house before the guests arrived.",Sense of Responsibility,0.86
+"He successfully completed the 120km cycle expedition in two days.",Stamina,0.92
+"The boy used a stick to pull the electric wire away from the dog.",Effective Intelligence,0.89
+"He waited for the rain to stop before going out to help the flood victims.",Initiative,0.25
+"She coordinated the annual sports meet by managing 15 different events simultaneously.",Organizing Ability,0.93
+"He convinced the shopkeeper to give him a discount by using his persuasion skills.",Power of Expression,0.78
+"He felt shy and didn't participate in the group dance during the fest.",Self Confidence,0.14
+"She volunteered to be the treasurer of the society and managed the funds transparently.",Sense of Responsibility,0.89
+"He stayed calm when the lift got stuck and helped the other passengers stay relaxed.",Effective Intelligence,0.91
+"He gave up on the puzzle after five minutes saying it was impossible to solve.",Determination,0.18
+"She used her scarf to tie the leaking pipe until the plumber arrived.",Resourcefulness,0.86
+"He took the initiative to learn a new language to communicate with his clients.",Initiative,0.84
+"He pushed his limits during the physical training and finished first in the run.",Stamina,0.94
+"He couldn't handle the pressure of the exams and broke down in tears.",Stamina,0.10
+"She organized a charity event to raise money for the local animal shelter.",Organizing Ability,0.88
+"He used a magnet to find the lost needle in the thick carpet.",Effective Intelligence,0.87
+"He refused to participate in the group activity because he didn't like the leader.",Cooperation,0.10
+"She explained the project goals to the stakeholders and secured the funding.",Power of Expression,0.91
+"He managed to fix the broken toy for his sister using some glue and tape.",Resourcefulness,0.75
+"He took the lead in the rescue operation when the building collapsed.",Leadership,0.95
+"She stayed back after the office hours to help her friend with the pending work.",Cooperation,0.89
+"He was afraid to go on the stage and forgot his lines during the play.",Self Confidence,0.15
+"He used a stone to sharpen the blunt knife in the forest.",Resourcefulness,0.84
+"She managed the event budget so well that they saved 20 percent of the funds.",Organizing Ability,0.90
+"He took the responsibility for the team's defeat and promised to work harder.",Sense of Responsibility,0.94
+"He successfully led the team to the summit of the mountain.",Leadership,0.96
+"She felt comfortable talking to people from different backgrounds and cultures.",Social Adaptability,0.91
+"He used a piece of coal to write the message on the wall.",Resourcefulness,0.80
+"He panicked and ran away when he saw a snake in the garden.",Self Confidence,0.12
+"She organized a workshop on digital literacy for the senior citizens.",Initiative,0.89
+"He used a bucket to collect the rainwater for later use in the garden.",Resourcefulness,0.82
+"He convinced the team to work on the weekend to meet the project deadline.",Leadership,0.91
+"She remained patient and calm even when the customer was being rude.",Social Adaptability,0.88
+"He took the initiative to fix the broken street light in his colony.",Initiative,0.85
+"He worked tirelessly for three days to restore the power after the storm.",Stamina,0.93
+"She couldn't express her feelings clearly and ended up having an argument.",Power of Expression,0.20
+"He led the search party to find the missing child in the dense forest.",Leadership,0.94
+"He used his belt to secure the loose luggage on the roof of the car.",Resourcefulness,0.84
+"She felt confident enough to challenge the unfair rules of the college.",Self Confidence,0.92
+"He helped the old man cross the busy road during the peak hours.",Social Effectiveness,0.85
+"He stayed up all night to ensure the water tank didn't overflow.",Sense of Responsibility,0.82
+"She managed the entire school assembly by coordinating with the staff and students.",Organizing Ability,0.91
+"He used a plastic sheet to make a temporary roof for the leaky hut.",Resourcefulness,0.87
+"He took the initiative to plant trees in the empty plot near his house.",Initiative,0.86
+"She convinced the villagers to stop using plastic and start using cloth bags.",Power of Expression,0.89
+"He couldn't handle the criticism from his peers and stopped working on the project.",Self Confidence,0.18
+"He led the local football team to victory in the district championship.",Leadership,0.93
+"She used a mirror to signal for help when she got lost in the hills.",Resourcefulness,0.90
+"He remained calm and composed during the high-pressure interview.",Self Confidence,0.91
+"He spent all his time on social media and neglected his studies.",Sense of Responsibility,0.08
+"She organized a sports tournament for the children in her neighborhood.",Organizing Ability,0.87
+"He used a magnifying glass to start a fire for cooking in the wilderness.",Resourcefulness,0.89
+"He couldn't find his way back home and got lost in his own city.",Effective Intelligence,0.15
+"She convinced her friends to donate their old clothes to the orphanage.",Social Effectiveness,0.88
+"He stayed at the hospital all night to take care of his sick friend.",Sense of Responsibility,0.91
+"He took the lead in organizing the annual college fest.",Leadership,0.92
+"She felt comfortable in the new environment and made many friends.",Social Adaptability,0.89
+"He used a stick to measure the depth of the water before crossing.",Effective Intelligence,0.86
+"He was too afraid to speak up when he saw someone being bullied.",Self Confidence,0.10
+"She organized a cleaning drive at the local beach and collected 500kg of trash.",Initiative,0.94
+"He used a heavy stone to keep the door from blowing shut in the wind.",Resourcefulness,0.78
+"He convinced the management to provide better facilities for the workers.",Power of Expression,0.90
+"She remained steady and focused during the 50km mountain bike race.",Stamina,0.91
+"He got bored and left the meeting halfway through.",Sense of Responsibility,0.12
+"She managed the office library by categorizing 2000 books efficiently.",Organizing Ability,0.89
+"He used a sharp rock to cut the rope when the knife was missing.",Resourcefulness,0.82
+"He took the initiative to fix the broken window in the classroom.",Initiative,0.84
+"She convinced the group to adopt a more sustainable lifestyle.",Power of Expression,0.88
+"He felt nervous and couldn't look the interviewer in the eye.",Self Confidence,0.18
+"He led the team of volunteers to provide food to the homeless during winter.",Leadership,0.95
+"She used a needle and thread to repair the torn tent during the camping trip.",Resourcefulness,0.85
+"He remained calm and focused even when the project was delayed.",Effective Intelligence,0.87
+"He took the responsibility of caring for his younger siblings while his parents were away.",Sense of Responsibility,0.89
+"She organized a blood donation camp in her office and 100 people donated.",Initiative,0.92
+"He used a stick to retrieve the ball from the thorny bushes.",Resourcefulness,0.75
+"He convinced the local authorities to fix the potholes in his area.",Power of Expression,0.84
+"She remained cheerful and positive even during the toughest training days.",Social Adaptability,0.90
+"He gave up on the training after just one week saying it was too hard.",Determination,0.15
+"She managed the logistics for the national level seminar perfectly.",Organizing Ability,0.92
+"He used a piece of wire to fix the broken spectacles.",Resourcefulness,0.80
+"He took the initiative to start a community garden in the empty lot.",Initiative,0.87
+"He convinced his team to try a new approach to solve the problem.",Leadership,0.89
+"She remained calm when she realized she had lost her way in the city.",Effective Intelligence,0.85
+"He felt shy and didn't speak to anyone at the party.",Social Adaptability,0.18
+"She organized a charity run and raised 5 lakhs for the hospital.",Organizing Ability,0.93
+"He used a branch to pull the bucket out of the well.",Resourcefulness,0.82
+"He took the initiative to teach the illiterate adults in his village.",Social Effectiveness,0.90
+"She remained focused and finished the 20km trek in record time.",Stamina,0.94
+"He couldn't handle the failure and stopped trying altogether.",Determination,0.10
+"She organized a workshop on self-defense for the girls in her school.",Initiative,0.91
+"He used a magnet to separate the iron filings from the sand.",Effective Intelligence,0.88
+"He refused to share his tools with the other students in the lab.",Cooperation,0.12
+"She explained the environmental impact of the new project clearly.",Power of Expression,0.89
+"He managed to fix the leaky roof using some tar and a brush.",Resourcefulness,0.84
+"He took the lead in organizing the relief work after the earthquake.",Leadership,0.96
+"She stayed back to help her colleague finish the urgent report.",Cooperation,0.90
+"He was trembling with fear during the first aid training.",Self Confidence,0.14
+"He used a stone to hammer the nail into the wooden board.",Resourcefulness,0.82
+"She managed the volunteer schedule for the three-day event efficiently.",Organizing Ability,0.88
+"He took the responsibility of managing the school's sports equipment.",Sense of Responsibility,0.87
+"He successfully led the trekking group to the base camp.",Leadership,0.92
+"She felt at home in the new city and made several friends.",Social Adaptability,0.88
+"He used a plastic bottle to make a temporary funnel for the oil.",Resourcefulness,0.78
+"He was too scared to go inside the dark room.",Self Confidence,0.12
+"She organized a health check-up camp for the local community.",Initiative,0.90
+"He used a bucket to carry the water to the fire.",Resourcefulness,0.85
+"He convinced the team to stay back and finish the project.",Leadership,0.88
+"She remained calm and composed even when she was under pressure.",Self Confidence,0.91
+"He took the initiative to repair the broken gate of the park.",Initiative,0.84
+"He worked for 12 hours straight to restore the communication lines.",Stamina,0.92
+"She couldn't express her thoughts clearly during the presentation.",Power of Expression,0.22
+"He led the relief team to provide medicine to the remote villages.",Leadership,0.95
+"He used his scarf to wrap the broken pipe until it was fixed.",Resourcefulness,0.82
+"She felt confident in her ability to lead the new project.",Self Confidence,0.90
+"He helped the blind man cross the busy junction.",Social Effectiveness,0.86
+"He stayed up late to ensure the library books were all in place.",Sense of Responsibility,0.84
+"She managed the school festival by coordinating with various clubs.",Organizing Ability,0.91
+"He used a piece of wood to support the collapsing fence.",Resourcefulness,0.85
+"He took the initiative to start a recycling program in his school.",Initiative,0.89
+"She convinced the local people to help her clean the river bank.",Power of Expression,0.90
+"He felt nervous and didn't participate in the group discussion.",Self Confidence,0.18
+"He led the basketball team to win the state championship.",Leadership,0.94
+"She used a mirror to signal her position to the rescue team.",Resourcefulness,0.91
+"He remained cool and collected during the final interview.",Self Confidence,0.92
+"He ignored his duties and spent the day sleeping.",Sense of Responsibility,0.06
+"She organized a talent show for the children in the slum area.",Organizing Ability,0.88
+"He used a magnifying glass to read the fine print on the map.",Effective Intelligence,0.84
+"He couldn't find his way out of the park and started crying.",Effective Intelligence,0.12
+"She convinced her neighbors to start a carpooling system.",Social Effectiveness,0.87
+"He stayed at the relief camp for a week to help the survivors.",Sense of Responsibility,0.92
+"He took the lead in organizing the annual sports day.",Leadership,0.91
+"She felt comfortable and made friends quickly at the training academy.",Social Adaptability,0.90
+"He used a stick to check for any holes in the ground before walking.",Effective Intelligence,0.85
+"He was too afraid to jump off the diving board.",Self Confidence,0.10
+"She organized a major tree plantation drive in the barren land.",Initiative,0.93
+"He used a heavy stone to hold down the edges of the tent.",Resourcefulness,0.76
+"He convinced the school to introduce more practical training.",Power of Expression,0.89
+"She remained focused and finished the 100km race in good time.",Stamina,0.92
+"He got tired and left the trek halfway through.",Stamina,0.12
+"She managed the office files by organizing them alphabetically.",Organizing Ability,0.88
+"He used a sharp rock to cut the bandage when the scissors were missing.",Resourcefulness,0.80
+"He took the initiative to fix the broken lock of the classroom.",Initiative,0.85
+"He completed the 40km route march carrying a 20kg load without asking for a break.",Stamina,0.96
+"Despite the scorching heat, she continued the survey work for 8 hours without stopping.",Stamina,0.91
+"He reported his best friend for cheating in the internal exam despite peer pressure.",Moral Courage,0.95
+"She stood up against the senior's ragging and reported the matter to the authorities.",Moral Courage,0.93
+"He quickly learned the local dialect to build rapport with the villagers during the project.",Social Adaptability,0.92
+"She adjusted her lifestyle and food habits easily when posted to a remote high-altitude area.",Social Adaptability,0.94
+"He stayed back to coach the weaker students in his class after the school hours.",Social Effectiveness,0.89
+"During the crisis, he kept the team's morale high by sharing inspiring stories.",Social Effectiveness,0.87
+"He successfully negotiated a peace treaty between two warring student factions.",Power of Expression,0.91
+"She gave a precise and impactful briefing to the commander within two minutes.",Power of Expression,0.94
+"He failed to explain the safety protocol, leading to confusion during the drill.",Power of Expression,0.15
+"He used his belt and a sturdy branch to haul his friend out of the pit.",Resourcefulness,0.92
+"When the torch batteries died, she used the reflection of the moon on a mirror to signal.",Resourcefulness,0.88
+"He panicked and threw the equipment away when the fire alarm went off.",Effective Intelligence,0.12
+"She calculated the water requirements for the 10-day camp to the last liter.",Effective Intelligence,0.93
+"He designed a roster that ensured everyone got equal rest during the night watch.",Organizing Ability,0.90
+"She arranged the entire logistics for the 500-person seminar in just three days.",Organizing Ability,0.95
+"His planning was so poor that the team ran out of food on the second day of the trek.",Organizing Ability,0.10
+"He jumped into the canal to save the child without waiting for a life jacket.",Initiative,0.96
+"She started a night school for the children of the construction workers nearby.",Initiative,0.92
+"He waited for the village headman to give orders while the fire was spreading.",Initiative,0.18
+"He accepted the blame for the failed mission to protect his subordinates.",Sense of Responsibility,0.95
+"She ensured that all the lights and fans were off before leaving the campus every day.",Sense of Responsibility,0.88
+"He left the injured puppy on the road, thinking it wasn't his problem.",Sense of Responsibility,0.08
+"Despite three rejections from the academy, he worked on his fitness and cleared it.",Determination,0.97
+"She refused to give up on the complex code until it ran perfectly at 3 AM.",Determination,0.94
+"He quit the task halfway because it was getting too repetitive.",Determination,0.20
+"During the sudden cloudburst, he calmly led his group to a cave he had spotted earlier.",Self Confidence,0.93
+"She handled the aggressive questioning from the board members with a calm smile.",Self Confidence,0.95
+"He was sweating and fumbling even though he knew the subject well.",Self Confidence,0.15
+"He shared his limited water supply with the thirsty rival team member.",Cooperation,0.92
+"She worked harmoniously with a team that had completely different political views.",Cooperation,0.90
+"He refused to help with the heavy lifting because it wasn't in his job description.",Cooperation,0.05
+"He swam across the flooded river to bring medicine for the old woman.",Courage,0.98
+"She entered the burning house to retrieve the gas cylinder before it exploded.",Courage,0.97
+"He stayed back in the dark forest to find his lost spectacles while his team moved on.",Effective Intelligence,0.30
+"He spent his entire scholarship money on a party instead of buying books.",Sense of Responsibility,0.10
+"She managed the crowd at the temple festival without any police assistance.",Leadership,0.94
+"He motivated the dejected players and led them to a comeback victory in the second half.",Leadership,0.96
+"He let the group fight among themselves and didn't intervene during the task.",Leadership,0.12
+"She used a charcoal piece and a cloth to filter muddy water into drinkable water.",Resourcefulness,0.91
+"He converted a discarded cycle into a mobile charging station for his village.",Resourcefulness,0.89
+"He forgot the main points of his speech as soon as he saw the microphone.",Power of Expression,0.18
+"She successfully completed the 24-hour endurance challenge without sleep.",Stamina,0.95
+"He felt dizzy and quit the parade after just twenty minutes of standing.",Stamina,0.22
+"She organized a 'Green Campus' initiative and planted 500 trees in a month.",Initiative,0.93
+"He stayed up all night guarding the perimeter while his teammates slept.",Sense of Responsibility,0.94
+"He easily mingled with the foreign delegates and made them feel welcome.",Social Adaptability,0.91
+"She stood up for the junior who was being unfairly blamed by the manager.",Moral Courage,0.94
+"He remained calm and diverted the traffic when the main bridge collapsed.",Effective Intelligence,0.95

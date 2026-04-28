@@ -2,61 +2,45 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { messages } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
-
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const { message } = await req.json();
+    const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
+    
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Authorization": `Bearer ${GROQ_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "llama-3.3-70b-versatile",
         messages: [
           {
             role: "system",
-            content: `You are OliveBot, the AI mentor for Olive Wings — India's AI-powered defence exam preparation platform. You help aspirants prepare for NDA, CDS, AFCAT, CAPF, INET exams and SSB interviews. You are friendly, motivational, knowledgeable about Indian defence exams, and provide clear, concise answers. Use markdown formatting for structured responses. Keep answers focused and actionable.`,
+            content: "You are OliveBot, an AI assistant for Indian Defence aspirants. Help users with study plans, exam info, and SSB preparation."
           },
-          ...messages,
-        ],
-        stream: true,
+          { role: "user", content: message }
+        ]
       }),
     });
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limits exceeded, please try again later." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI service temporarily unavailable. Please try again later." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
-      return new Response(JSON.stringify({ error: "AI service error" }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const data = await response.json();
+    const reply = data.choices[0].message.content;
 
-    return new Response(response.body, {
-      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+    return new Response(JSON.stringify({ response: reply }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+
   } catch (e) {
-    console.error("chat error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    return new Response(JSON.stringify({ error: e.message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });

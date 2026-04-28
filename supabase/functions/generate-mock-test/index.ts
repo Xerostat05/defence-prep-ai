@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 serve(async (req) => {
@@ -10,86 +10,46 @@ serve(async (req) => {
 
   try {
     const { exam_type, subject, num_questions } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
+    
+    if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY not found");
 
     const count = num_questions || 10;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Authorization": `Bearer ${GROQ_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "llama-3.3-70b-versatile",
         messages: [
           {
             role: "system",
-            content: "You are an expert question paper setter for Indian defence exams. Create challenging, exam-realistic MCQ questions.",
+            content: "You are an expert Indian defence exam paper setter. Return ONLY a valid JSON object."
           },
           {
             role: "user",
-            content: `Generate ${count} MCQ questions for ${exam_type} exam${subject ? `, subject: ${subject}` : ''}. Each question must have 4 options with exactly one correct answer.`,
-          },
+            content: `Generate ${count} MCQs for ${exam_type} ${subject ? `on ${subject}` : ''}. 
+            Format: {"questions": [{"id": 1, "question": "...", "options": ["a","b","c","d"], "correct_answer": 0, "explanation": "..."}]}`
+          }
         ],
-        tools: [{
-          type: "function",
-          function: {
-            name: "create_questions",
-            description: "Create MCQ questions for a mock test",
-            parameters: {
-              type: "object",
-              properties: {
-                questions: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      id: { type: "number" },
-                      question: { type: "string" },
-                      options: { type: "array", items: { type: "string" } },
-                      correct_answer: { type: "number", description: "0-indexed position of correct option" },
-                      explanation: { type: "string" },
-                      subject: { type: "string" },
-                    },
-                    required: ["id", "question", "options", "correct_answer", "explanation"],
-                  },
-                },
-              },
-              required: ["questions"],
-            },
-          },
-        }],
-        tool_choice: { type: "function", function: { name: "create_questions" } },
+        response_format: { type: "json_object" }
       }),
     });
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limited, try again later." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI service temporarily unavailable." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      throw new Error("AI service error");
-    }
-
     const data = await response.json();
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    const result = toolCall ? JSON.parse(toolCall.function.arguments) : { questions: [] };
+    const result = JSON.parse(data.choices[0].message.content);
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+
   } catch (e) {
-    console.error("generate-mock-test error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    return new Response(JSON.stringify({ error: e.message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });

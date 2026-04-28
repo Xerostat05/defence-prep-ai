@@ -19,7 +19,10 @@ import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import SSBPractice from "./pages/SSBPractice";
 import Flashcards from "./pages/Flashcards";
+import WATPractice from "./pages/WATPractice"; // Added import
 import NotFound from "./pages/NotFound";
+import TATPractice from "./pages/TATPractice";
+
 
 const queryClient = new QueryClient();
 
@@ -45,6 +48,9 @@ const App = () => (
             <Route path="/profile" element={<Profile />} />
             <Route path="/ssb-practice" element={<SSBPractice />} />
             <Route path="/flashcards" element={<Flashcards />} />
+            <Route path="/wat-practice" element={<WATPractice />} /> {/* Added route */}
+            <Route path="/tat-practice" element={<TATPractice />} />
+            
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

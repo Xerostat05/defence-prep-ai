@@ -9,13 +9,55 @@ import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 
 const dashboardItems = [
-  { title: "Mock Tests", desc: "AI-generated practice tests for NDA, CDS, AFCAT", icon: Target, path: "/mock-test", color: "bg-gold/10 text-gold" },
-  { title: "Study Planner", desc: "Get a personalized AI study plan for your exam", icon: BookOpen, path: "/study-planner", color: "bg-secondary/10 text-secondary" },
-  { title: "Study Materials", desc: "Curated notes & resources for all defence exams", icon: FileText, path: "/study-materials", color: "bg-olive/10 text-olive" },
-  { title: "Performance Analysis", desc: "Track scores, accuracy, and improvement trends", icon: BarChart3, path: "/analysis", color: "bg-primary/10 text-primary" },
-  { title: "SSB Practice", desc: "Timed WAT, TAT, SRT with AI evaluation", icon: Brain, path: "/ssb-practice", color: "bg-gold/10 text-gold" },
-  { title: "AI Flashcards", desc: "Spaced repetition cards adapted to your weak areas", icon: Brain, path: "/flashcards", color: "bg-gold/10 text-gold" },
-  { title: "Profile Settings", desc: "Update your name, avatar, and target exam", icon: Settings, path: "/profile", color: "bg-secondary/10 text-secondary" },
+  { 
+    title: "Performance Analysis", 
+    desc: "AI-powered psychological OLQ evaluation & score trends", 
+    icon: BarChart3, 
+    path: "/analysis", 
+    color: "bg-primary/10 text-primary" 
+  },
+  { 
+    title: "Mock Tests", 
+    desc: "AI-generated practice tests for NDA, CDS, AFCAT", 
+    icon: Target, 
+    path: "/mock-test", 
+    color: "bg-gold/10 text-gold" 
+  },
+  { 
+    title: "SSB Practice", 
+    desc: "Timed WAT, TAT, SRT with real-time AI feedback", 
+    icon: Brain, 
+    path: "/ssb-practice", 
+    color: "bg-gold/10 text-gold" 
+  },
+  { 
+    title: "Study Planner", 
+    desc: "Get a personalized AI study plan for your exam", 
+    icon: BookOpen, 
+    path: "/study-planner", 
+    color: "bg-secondary/10 text-secondary" 
+  },
+  { 
+    title: "Study Materials", 
+    desc: "Curated notes & resources for all defence exams", 
+    icon: FileText, 
+    path: "/study-materials", 
+    color: "bg-olive/10 text-olive" 
+  },
+  { 
+    title: "AI Flashcards", 
+    desc: "Spaced repetition cards adapted to your weak areas", 
+    icon: Zap, 
+    path: "/flashcards", 
+    color: "bg-gold/10 text-gold" 
+  },
+  { 
+    title: "Profile Settings", 
+    desc: "Update your name, avatar, and target exam", 
+    icon: Settings, 
+    path: "/profile", 
+    color: "bg-secondary/10 text-secondary" 
+  },
 ];
 
 type DashboardInsights = {
