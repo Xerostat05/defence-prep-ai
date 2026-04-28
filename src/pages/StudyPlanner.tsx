@@ -43,26 +43,45 @@ const StudyPlanner = () => {
   };
 
   const generatePlan = async () => {
-    if (!examType) { toast.error("Select an exam type"); return; }
+    if (!examType) {
+      toast.error("Select an exam type");
+      return;
+    }
     setIsGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke("generate-study-plan", {
-        body: { exam_type: examType, exam_date: examDate, weak_areas: weakAreas, hours_per_day: Number(hoursPerDay) },
+      // 1. REDIRECT: Call the local Python engine instead of the broken Supabase Edge Function
+      const response = await fetch("http://127.0.0.1:8000/generate-study-plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          exam_type: examType,
+          exam_date: examDate,
+          weak_areas: weakAreas,
+          hours_per_day: Number(hoursPerDay)
+        }),
       });
-      if (error) throw error;
-      
+
+      if (!response.ok) throw new Error("Local Engine: Failed to generate plan");
+
+      const data = await response.json();
+
+      // 2. INSERT: Save the result into your Supabase database for persistence
+      // Note: We use 'schedule' from your Python response to map to 'plan_data'
       const { error: insertErr } = await supabase.from("study_plans").insert({
         user_id: user!.id,
-        title: data.title || `${examType} Study Plan`,
+        title: data.plan_title || `${examType} Study Plan`,
         exam_type: examType,
-        plan_data: data.plan,
+        plan_data: data.schedule || [], // Maps local Python data to DB column
         end_date: examDate || null,
       });
+
       if (insertErr) throw insertErr;
-      toast.success("Study plan generated!");
-      fetchPlans();
+
+      toast.success("AI Study plan generated locally!");
+      fetchPlans(); // Refresh the list
     } catch (e: any) {
-      toast.error(e.message || "Failed to generate plan");
+      console.error(e);
+      toast.error(e.message || "Ensure 'python main.py' is running in the terminal.");
     } finally {
       setIsGenerating(false);
     }
