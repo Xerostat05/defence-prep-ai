@@ -1,10 +1,15 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import joblib
 from textblob import TextBlob
 import uvicorn
-
+from typing import List, Optional
+import uuid
+from datetime import datetime
+import os
+import random
+from fastapi.staticfiles import StaticFiles
 # --- 1. CONFIGURATION & MODELS ---
 try:
     model = joblib.load("olq_classifier.pkl")
@@ -14,6 +19,10 @@ except Exception as e:
     print(f"❌ Error loading models: {e}")
 
 app = FastAPI()
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+tat_path = os.path.join(base_dir, "public", "tat")
+
+app.mount("/tat", StaticFiles(directory=tat_path), name="tat")
 
 app.add_middleware(
     CORSMiddleware,
@@ -30,9 +39,9 @@ class EvaluationRequest(BaseModel):
 
 class StudyPlanRequest(BaseModel):
     exam_type: str
-    exam_date: str = ""
-    weak_areas: str = ""
-    hours_per_day: int = 4
+    exam_date: Optional[str] = None
+    weak_areas: List[str]
+    hours_per_day: int
 
 # --- 3. PSYCH ENGINE ENDPOINTS ---
 @app.post("/analyze-ssb")
@@ -75,22 +84,24 @@ async def generate_flashcards(request: EvaluationRequest):
         ]
     }
 
-# --- 5. STUDY PLAN ENDPOINT (The fix is placing this BEFORE startup) ---
+
+
+# --- 5. STUDY PLAN ENDPOINT (Refined for AI Logic) ---
 @app.post("/generate-study-plan")
-async def generate_study_plan(request: StudyPlanRequest):
-    # 1. Define specific curriculum based on Exam Type
+async def generatePlan(request: StudyPlanRequest):
+    # This dictionary acts as the "Knowledge Base" for the AI logic
     test_data = {
         "NDA": {
             "focus": "Mathematics & GAT",
-            "topics": ["Trigonometry & Algebra", "English Vocabulary", "Physics/Chemistry Fundamentals"]
+            "topics": ["Trigonometry & Algebra", "English Vocabulary", "Physics/Chemistry"]
         },
         "CDS": {
             "focus": "Advanced GS & Elementary Maths",
-            "topics": ["Indian Polity & History", "English Grammar", "Arithmetic & Mensuration"]
-        },
+            "topics": ["Indian Polity & History", "English Grammar", "Arithmetic"]
+        },  
         "SSB": {
             "focus": "Psychology & OLQs",
-            "topics": ["TAT/WAT/SRT Practice", "Current Affairs Discussion", "GTO Task Visualization"]
+            "topics": ["TAT/WAT/SRT Practice", "Current Affairs", "GTO Visualization"]
         },
         "AFCAT": {
             "focus": "Numerical Ability & Reasoning",
@@ -98,44 +109,92 @@ async def generate_study_plan(request: StudyPlanRequest):
         }
     }
 
-    # 2. Get data for the selected test (fallback to General if not found)
     selected = test_data.get(request.exam_type, {
         "focus": "General Defence Prep",
-        "topics": ["Syllabus Overview", "Previous Year Papers"]
+        "topics": ["Syllabus Overview", "Previous Year Papers", "General Awareness"]
     })
 
-    # 3. Add the "Weak Area" into the first day for true personalization
-    personal_focus = f"Intensive: {request.weak_areas}" if request.weak_areas else f"Focus: {selected['focus']}"
+    # DYNAMIC LOGIC: If user typed a weak area, it overrides the standard focus
+    # Join the list of weak areas into a single string for the UI
+    weak_areas_str = ", ".join(request.weak_areas) if isinstance(request.weak_areas, list) else request.weak_areas
 
+    primary_task = f"Mastery Session: {weak_areas_str}" if weak_areas_str else f"Core Focus: {selected['focus']}"
     return {
+        "id": str(uuid.uuid4()),
         "status": "success",
-        "plan_title": f"7-Day {request.exam_type} Personal Fast-Track",
+        "plan_title": f"{request.exam_type} Personal Fast-Track",
+        "exam": request.exam_type,
+        "date": request.exam_date,
         "schedule": [
             {
-                "week": 1, "day": "Monday", 
-                "topics": [personal_focus, selected['topics'][0]], 
-                "duration_hours": request.hours_per_day, "priority": "high"
+                "day": "Monday", 
+                "topics": [primary_task, selected['topics'][0]], 
+                "hours": request.hours_per_day
             },
             {
-                "week": 1, "day": "Tuesday", 
-                "topics": [selected['topics'][1], "Daily Current Affairs"], 
-                "duration_hours": request.hours_per_day, "priority": "medium"
-            },
-            {
-                "week": 1, "day": "Wednesday", 
-                "topics": [selected['topics'][2] if len(selected['topics']) > 2 else "Mock Test", "Error Analysis"], 
-                "duration_hours": request.hours_per_day, "priority": "high"
-            },
-            {
-                "week": 1, "day": "Thursday", 
-                "topics": ["Physical Conditioning", "Revision of Weak Areas"], 
-                "duration_hours": 2, "priority": "low"
+                "day": "Tuesday", 
+                "topics": [selected['topics'][1], "Psychological Conditioning"], 
+                "hours": request.hours_per_day
             }
         ]
     }
+    
 
-# --- 6. SERVER STARTUP (Always keep this at the absolute bottom) ---
+# --- NEW DATA MODELS ---
+class TATRequest(BaseModel):
+    story: str
+    image_name: str
+
+# Mock Database for Performance Analytics
+user_performance_vault = []
+
+# --- TAT LOGIC: DYNAMIC FOLDER ACCESS ---
+TAT_IMAGE_DIR = "public/tat"
+
+@app.get("/get-tat-image")
+async def get_tat_image():
+    if not os.path.exists(TAT_IMAGE_DIR):
+        raise HTTPException(status_code=404, detail="TAT directory not found")
+    
+    # Logic: Filter files to ensure we only pick images, ignoring sequence/names
+    images = [f for f in os.listdir(TAT_IMAGE_DIR) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
+    
+    if not images:
+        raise HTTPException(status_code=404, detail="No images in folder")
+        
+    selected_image = random.choice(images)
+    return {"image_url": f"/tat/{selected_image}"}
+
+# --- AGENTIC ANALYSIS & DATA PERSISTENCE ---
+@app.post("/analyze-tat")
+async def analyze_tat(data: TATRequest):
+    # Agentic Simulation: In a real app, you'd call an LLM here
+    # This logic acts as the 'Evaluator Agent'
+    
+    analysis_results = {
+        "test_type": "TAT",
+        "timestamp": datetime.now().isoformat(),
+        "story_preview": data.story[:50],
+        "olqs": ["Initiative", "Social Effectiveness", "Self-Confidence"],
+        "feedback": "The story shows high level of resourcefulness but needs more emphasis on group cooperation.",
+        "sentiment_score": 0.85 # High positivity
+    }
+
+    # FEATURE: Save to Performance Analytics Vault
+    user_performance_vault.append(analysis_results)
+    
+    return analysis_results
+
+@app.get("/performance-analytics")
+async def get_analytics():
+    # Returns all past mock test data for the user
+    return user_performance_vault
+# --- ADD THIS: Root route for easy debugging ---
+@app.get("/")
+async def root():
+    return {"message": "SSB Psych Engine is Online"}
+
+# --- 6. SERVER STARTUP ---
 if __name__ == "__main__":
-    print("🚀 SSB Psych Engine starting on http://127.0.0.1:8000")
-    # Using 0.0.0.0 helps prevent "Connection Refused" errors on some networks
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # Change host to 127.0.0.1 to match your frontend fetch exactly
+    uvicorn.run(app, host="127.0.0.1", port=8000)

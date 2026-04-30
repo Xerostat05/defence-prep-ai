@@ -1,82 +1,102 @@
-import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { Timer, Brain } from "lucide-react";
-import Navbar from "@/components/Navbar";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const TATPractice = () => {
-  const navigate = useNavigate();
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [phase, setPhase] = useState<"observe" | "write">("observe");
-  const [timeLeft, setTimeLeft] = useState(30); 
-  const [story, setStory] = useState("");
-  const [allStories, setAllStories] = useState<any[]>([]);
+    const [image, setImage] = useState<string | null>(null);
+    const [story, setStory] = useState('');
+    const [analysis, setAnalysis] = useState<any>(null);
+    const [loading, setLoading] = useState(false);
 
-  // YOUR ORIGINAL DYNAMIC IMAGE LOGIC
-  const sessionImages = useMemo(() => {
-  // Look into the public folder
-  const imageModules = import.meta.glob("/public/tat/*.{png,jpg,jpeg,webp}", { eager: true });
-  
-  // Clean paths for the browser (remove "/public")
-  const allPaths = Object.keys(imageModules).map(path => path.replace("/public", ""));
-  
-  // Randomize 11 images and add the Blank Slide
-  return [...allPaths].sort(() => Math.random() - 0.5).slice(0, 11).concat("BLANK_SLIDE");
-}, []);
+    // Fetch a random image on component mount
+    const fetchRandomImage = async () => {
+        try {
+            const res = await axios.get('http://localhost:8000/get-tat-image');
+            setImage(res.data.image_url);
+        } catch (err) {
+            console.error("Error fetching TAT image", err);
+        }
+    };
 
-  useEffect(() => {
-    let timer: any;
-    if (timeLeft > 0) {
-      timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-    } else {
-      phase === "observe" ? (setPhase("write"), setTimeLeft(240)) : handleNext();
-    }
-    return () => clearTimeout(timer);
-  }, [timeLeft]);
+    useEffect(() => { fetchRandomImage(); }, []);
 
-  const handleNext = async () => {
-    try {
-      const res = await fetch("http://127.0.0.1:8000/analyze-ssb", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: story || "No response", time_taken: 240 - timeLeft }),
-      });
-      const data = await res.json();
-      const updated = [...allStories, { word: `Slide ${currentIndex + 1}`, response: story, ...data }];
-      
-      if (currentIndex < 11) {
-        setAllStories(updated);
-        setCurrentIndex(prev => prev + 1);
-        setStory(""); setPhase("observe"); setTimeLeft(30);
-      } else {
-        // LOCAL STORAGE BRIDGE
-        localStorage.setItem("ssb_latest_session", JSON.stringify({ type: 'TAT', results: updated }));
-        navigate("/ssb-practice", { state: { results: updated, type: 'TAT' } });
-      }
-    } catch (e) { console.error(e); }
-  };
+    const handleSubmit = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.post('http://localhost:8000/analyze-tat', {
+                story: story,
+                image_name: image?.split('/').pop() // Send image ref for context
+            });
+            setAnalysis(response.data);
+        } catch (err) {
+            console.error("Analysis failed", err);
+        }
+        setLoading(false);
+    };
+    const handleFinishTest = () => {
+      // Logic to save session to localStorage (Persistence)
+      const existingHistory = JSON.parse(localStorage.getItem("ssb_history") || "[]");
+      const newEntry = {
+        id: Date.now(),
+        timestamp: new Date().toISOString(),
+        type: "TAT",
+        data: aiGeneratedAnalysisArray, 
+      };
+      localStorage.setItem("ssb_history", JSON.stringify([newEntry, ...existingHistory]));
 
-  return (
-    <div className="min-h-screen bg-[#0a0f1d] text-white p-10 pt-32">
-      <Navbar />
-      <div className="max-w-4xl mx-auto bg-slate-900/50 p-10 rounded-[2rem] border border-white/5">
-        <div className="flex justify-between mb-8">
-            <h2 className="text-[#d4af37] font-black uppercase">TAT Slide {currentIndex + 1}</h2>
-            <div className="flex items-center gap-2"><Timer size={20}/> {timeLeft}s</div>
+      // Safe navigation with state
+      navigate("/ssb-practice", { state: { results: aiGeneratedAnalysisArray } });
+    };
+    return (
+        <div className="p-8 max-w-4xl mx-auto">
+            <h2 className="text-2xl font-bold mb-4 text-olive-600">TAT Agentic Practice</h2>
+            
+            {image && (
+                <div className="mb-6">
+                    <img src={`http://localhost:8000${image}`} alt="TAT Stimulus" className="rounded-lg shadow-lg max-h-96 mx-auto" />
+                </div>
+            )}
+
+            <textarea 
+                className="w-full p-4 border rounded-md h-40 bg-gray-50"
+                placeholder="Write your story here (Observe for 30s, write for 4m)..."
+                value={story}
+                onChange={(e) => setStory(e.target.value)}
+            />
+
+            <button 
+                onClick={handleSubmit}
+                disabled={loading}
+                className="mt-4 bg-olive-700 text-white px-6 py-2 rounded hover:bg-olive-800 disabled:opacity-50"
+            >
+                {loading ? 'Agent Analyzing...' : 'Submit Story'}
+            </button>
+
+            {analysis && (
+                <div className="mt-8 p-6 bg-white border-l-4 border-olive-500 shadow-sm">
+                    <h3 className="font-bold text-lg">AI Insights & Performance Analytics</h3>
+                    <p className="mt-2 text-gray-700"><strong>OLQs Detected:</strong> {analysis.olqs.join(', ')}</p>
+                    <p className="mt-2"><strong>Psychological Feedback:</strong> {analysis.feedback}</p>
+                    <div className="mt-2 text-sm text-gray-500 italic">Saved to Performance Analytics Vault.</div>
+                </div>
+            )}
+            {isAnalysisComplete && (
+              <div className="mt-8 flex flex-col items-center gap-4">
+                <div className="text-sm text-gray-500 italic">
+                  Saved to Performance Analytics Vault.
+                </div>
+                
+                {/* Trigger navigation via the handler */}
+                <Button 
+                  onClick={handleFinishTest}
+                  className="bg-[#d4af37] text-black font-bold hover:bg-amber-500"
+                >
+                  View Full Performance Report
+                </Button>
+              </div>
+            )}
+            
         </div>
-        <div className="grid grid-cols-2 gap-8">
-            <div className="rounded-xl overflow-hidden h-64 bg-black border border-white/10">
-                {sessionImages[currentIndex] === "BLANK_SLIDE" ? 
-                  <div className="h-full flex items-center justify-center font-bold">BLANK SLIDE</div> :
-                  <img src={sessionImages[currentIndex]} className={`h-full w-full object-cover ${phase === 'write' ? 'blur-2xl' : ''}`} />
-                }
-            </div>
-            <textarea className="bg-black/40 p-4 rounded-xl border border-white/10 outline-none" 
-                value={story} onChange={(e) => setStory(e.target.value)} disabled={phase === 'observe'} placeholder="Write story..."/>
-        </div>
-        <button onClick={handleNext} className="w-full mt-6 bg-[#d4af37] text-black font-bold h-12 rounded-xl uppercase">Next</button>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default TATPractice;
