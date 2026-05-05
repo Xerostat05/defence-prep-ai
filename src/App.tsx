@@ -22,6 +22,12 @@ import Flashcards from "./pages/Flashcards";
 import WATPractice from "./pages/WATPractice"; // Added import
 import NotFound from "./pages/NotFound";
 import TATPractice from "./pages/TATPractice";
+import SRTPractice from "./pages/SRTPractice";
+import OIRPractice from "./pages/OIRPractice";
+import GDSimulator from "./pages/GDSimulator";
+import PIPreparation from "./pages/PIPreparation";
+import InterviewCoaching from "./pages/InterviewCoaching";
+import HolisticAnalysis from "./pages/HolisticAnalysis";
 
 
 const queryClient = new QueryClient();
@@ -50,6 +56,12 @@ const App = () => (
             <Route path="/flashcards" element={<Flashcards />} />
             <Route path="/wat-practice" element={<WATPractice />} /> {/* Added route */}
             <Route path="/tat-practice" element={<TATPractice />} />
+            <Route path="/srt-practice" element={<SRTPractice />} />
+            <Route path="/oir-practice" element={<OIRPractice />} />
+            <Route path="/gd-simulator" element={<GDSimulator />} />
+            <Route path="/pi-preparation" element={<PIPreparation />} />
+            <Route path="/interview-coaching" element={<InterviewCoaching />} />
+            <Route path="/holistic-analysis" element={<HolisticAnalysis />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

@@ -14,9 +14,9 @@ from fastapi.staticfiles import StaticFiles
 try:
     model = joblib.load("olq_classifier.pkl")
     vectorizer = joblib.load("tfidf_vectorizer.pkl")
-    print("✅ Models loaded successfully!")
+    print("Models loaded successfully")
 except Exception as e:
-    print(f"❌ Error loading models: {e}")
+    print(f"Error loading models: {e}")
 
 app = FastAPI()
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -36,6 +36,8 @@ app.add_middleware(
 class EvaluationRequest(BaseModel):
     text: str
     time_taken: float = 0.0
+    user_id: Optional[str] = None
+    session_type: Optional[str] = None
 
 class StudyPlanRequest(BaseModel):
     exam_type: str
@@ -64,6 +66,20 @@ async def analyze_ssb(request: EvaluationRequest):
 
     vec = vectorizer.transform([request.text])
     pred = model.predict(vec)[0]
+
+    analysis_record = {
+        "user_id": request.user_id,
+        "session_type": request.session_type or "SRT/WAT",
+        "score": round((sentiment + 1) * 50, 1),
+        "details": {
+            "feedback": f"{base}{latency}",
+            "primary_olq": pred,
+            "time_taken": request.time_taken,
+            "text": request.text
+        },
+        "timestamp": datetime.now().isoformat()
+    }
+    user_performance_vault.append(analysis_record)
 
     return {
         "sentiment": round(sentiment, 2),
@@ -144,26 +160,116 @@ async def generatePlan(request: StudyPlanRequest):
 class TATRequest(BaseModel):
     story: str
     image_name: str
+    user_id: Optional[str] = None
+
+class PerformanceLogRequest(BaseModel):
+    user_id: str
+    session_type: str
+    score: Optional[float] = None
+    details: dict
+    timestamp: Optional[str] = None
+
+class OIRAnalysisRequest(BaseModel):
+    user_id: str
+    answers: List[dict]
+    time_taken: float = 0.0
+
+class GDRequest(BaseModel):
+    user_id: str
+    topic: str
+    user_input: Optional[str] = None
+
+class PIAnalysisRequest(BaseModel):
+    user_id: str
+    question: str
+    answer: str
+
+# --- COMPREHENSIVE WAT WORD POOL ---
+WAT_WORD_POOL = [
+    "Risk", "Team", "Failure", "Enemy", "Mission", "Friend", "Lead", "Duty", 
+    "Conflict", "Victory", "Fear", "Discipline", "Home", "Order", "Success", 
+    "Brother", "Country", "Challenge", "Goal", "Attack", "Peace", "Company", 
+    "Loyalty", "Mistake", "Problem", "Command", "Action", "Responsibility",
+    "Courage", "Honor", "Sacrifice", "Unity", "Strength", "Wisdom", "Trust",
+    "Justice", "Duty", "Service", "Excellence", "Perseverance", "Innovation",
+    "Leadership", "Communication", "Decision", "Crisis", "Success", "Failure",
+    "Growth", "Change", "Opportunity", "Threat", "Alliance", "Authority",
+    "Weakness", "Strength", "Defense", "Offense", "Retreat", "Advance",
+    "Protocol", "Innovation", "Tradition", "Progress", "Heritage", "Future"
+]
+
+# --- COMPREHENSIVE SRT SITUATIONS ---
+SRT_SITUATIONS = [
+    "He was leading a patrol and enemy fire broke out suddenly. He...",
+    "His subordinate made a critical mistake during an operation. He...",
+    "He realized his unit was running low on ammunition and supplies. He...",
+    "A fellow officer criticized his leadership in front of the troops. He...",
+    "He received an order that he thought was strategically unsound. He...",
+    "During a difficult mission, one of his soldiers got severely injured. He...",
+    "He discovered that a team member had stolen military supplies. He...",
+    "His commanding officer rejected his operational plan without explanation. He...",
+    "He faced a situation where he had to choose between two conflicting duties. He...",
+    "He noticed that some soldiers were not following proper protocol. He...",
+    "He was promoted suddenly over more senior officers. He...",
+    "He had to make a critical decision with incomplete information. He...",
+    "A subordinate questioned his authority in front of the entire unit. He...",
+    "He discovered a security breach in his unit. He...",
+    "He was assigned a mission that seemed impossible with limited resources. He...",
+    "He had to deliver bad news to his team. He...",
+    "He witnessed corruption among his peer officers. He...",
+    "He was blamed for a failure that wasn't entirely his responsibility. He...",
+    "He had to train a group of poorly motivated soldiers. He...",
+    "He faced a dilemma between following orders and protecting his men. He..."
+]
 
 # Mock Database for Performance Analytics
 user_performance_vault = []
 
+# --- WAT ENDPOINT ---
+@app.get("/get-wat-words")
+async def get_wat_words(count: int = 10):
+    """Get random WAT words for the test"""
+    if count > len(WAT_WORD_POOL):
+        count = len(WAT_WORD_POOL)
+    
+    selected_words = random.sample(WAT_WORD_POOL, count)
+    return {
+        "status": "success",
+        "words": selected_words,
+        "count": len(selected_words),
+        "time_per_word": 15  # seconds
+    }
+
+# --- SRT ENDPOINT ---
+@app.get("/get-srt-situations")
+async def get_srt_situations(count: int = 10):
+    """Get random SRT situations for the test"""
+    if count > len(SRT_SITUATIONS):
+        count = len(SRT_SITUATIONS)
+    
+    selected_situations = random.sample(SRT_SITUATIONS, count)
+    return {
+        "status": "success",
+        "situations": selected_situations,
+        "count": len(selected_situations),
+        "time_per_situation": 120  # seconds (2 minutes)
+    }
+
+
 # --- TAT LOGIC: DYNAMIC FOLDER ACCESS ---
-TAT_IMAGE_DIR = "public/tat"
+TAT_IMAGE_DIR = tat_path
 
 @app.get("/get-tat-image")
 async def get_tat_image():
     if not os.path.exists(TAT_IMAGE_DIR):
-        raise HTTPException(status_code=404, detail="TAT directory not found")
-    
-    # Logic: Filter files to ensure we only pick images, ignoring sequence/names
-    images = [f for f in os.listdir(TAT_IMAGE_DIR) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
-    
+        raise HTTPException(status_code=404, detail=f"TAT directory not found: {TAT_IMAGE_DIR}")
+
+    images = [f for f in os.listdir(TAT_IMAGE_DIR) if f.lower().endswith((".png", ".jpg", ".jpeg"))]
     if not images:
-        raise HTTPException(status_code=404, detail="No images in folder")
-        
+        raise HTTPException(status_code=404, detail=f"No images in folder: {TAT_IMAGE_DIR}")
+
     selected_image = random.choice(images)
-    return {"image_url": f"/tat/{selected_image}"}
+    return {"image_url": f"http://127.0.0.1:8000/tat/{selected_image}"}
 
 # --- AGENTIC ANALYSIS & DATA PERSISTENCE ---
 @app.post("/analyze-tat")
@@ -172,7 +278,8 @@ async def analyze_tat(data: TATRequest):
     # This logic acts as the 'Evaluator Agent'
     
     analysis_results = {
-        "test_type": "TAT",
+        "session_type": "TAT",
+        "user_id": data.user_id,
         "timestamp": datetime.now().isoformat(),
         "story_preview": data.story[:50],
         "olqs": ["Initiative", "Social Effectiveness", "Self-Confidence"],
@@ -181,14 +288,343 @@ async def analyze_tat(data: TATRequest):
     }
 
     # FEATURE: Save to Performance Analytics Vault
-    user_performance_vault.append(analysis_results)
-    
+    user_performance_vault.append({
+        "user_id": data.user_id,
+        "session_type": "TAT",
+        "score": analysis_results["sentiment_score"] * 100,
+        "details": {
+            "story_preview": analysis_results["story_preview"],
+            "olqs": analysis_results["olqs"],
+            "feedback": analysis_results["feedback"]
+        },
+        "timestamp": analysis_results["timestamp"]
+    })
+
     return analysis_results
 
 @app.get("/performance-analytics")
-async def get_analytics():
-    # Returns all past mock test data for the user
+async def get_analytics(user_id: Optional[str] = None):
+    if user_id:
+        return [record for record in user_performance_vault if record.get("user_id") == user_id]
     return user_performance_vault
+
+@app.get("/get-comprehensive-analysis")
+async def get_comprehensive_analysis(user_id: Optional[str] = None, exam_type: Optional[str] = None):
+    records = [
+        record for record in user_performance_vault
+        if (not user_id or record.get("user_id") == user_id)
+        and (not exam_type or record.get("session_type") == exam_type)
+    ]
+    scores = [record.get("score", 0) for record in records if record.get("score") is not None]
+    metrics = {
+        "total_attempts": len(records),
+        "average_score": round(sum(scores) / len(scores), 2) if scores else 0,
+        "best_score": round(max(scores), 2) if scores else 0,
+        "weak_areas": list({record.get("details", {}).get("weak_area") for record in records if record.get("details", {}).get("weak_area")})
+    }
+    return {
+        "metrics": [metrics],
+        "analyses": records,
+        "recommendations": []
+    }
+
+@app.post("/log-performance")
+async def log_performance(entry: PerformanceLogRequest):
+    if not entry.timestamp:
+        entry.timestamp = datetime.now().isoformat()
+    record = entry.dict()
+    user_performance_vault.append(record)
+    return {"status": "success", "record": record}
+
+@app.get("/generate-oir-questions")
+async def generate_oir_questions(count: int = 5):
+    question_pool = [
+        {"id": 1, "question": "You must choose between helping a team member and finishing your own task on time. What do you do?", "options": ["Help the team member first", "Finish your task first", "Ask for help", "Delay both until later"]},
+        {"id": 2, "question": "Your unit is behind schedule. Your senior insists on a conservative plan. What do you do?", "options": ["Follow the senior's plan", "Present a faster plan", "Begin a quiet alternative", "Delay decision"]},
+        {"id": 3, "question": "A colleague is taking undue credit for your work. How do you react?", "options": ["Speak up calmly", "Confront aggressively", "Let it go", "Document and escalate"]},
+        {"id": 4, "question": "A new command order seems unclear. You should...", "options": ["Seek clarification immediately", "Guess and act", "Wait for more details", "Ask a peer"]},
+        {"id": 5, "question": "You have to decide quickly between two risky options. You...", "options": ["Choose the safer one", "Choose the one with higher reward", "Consult a teammate", "Avoid decision"]},
+        {"id": 6, "question": "Your team members have conflicting opinions during a critical mission. You...", "options": ["Listen to all and make a clear decision", "Side with the most senior person", "Delay until consensus emerges", "Let them decide themselves"]},
+        {"id": 7, "question": "You notice a protocol violation by your peer officer. The best course is to...", "options": ["Address it immediately and privately", "Report directly to commanding officer", "Ignore it to maintain harmony", "Warn them once then report"]},
+        {"id": 8, "question": "During a stressful operation, a subordinate makes a critical error. You would...", "options": ["Correct it calmly and focus on prevention", "Blame them in front of others", "Wait until later to discuss", "Assume responsibility and move forward"]},
+        {"id": 9, "question": "You're offered a high-profile assignment that conflicts with your unit's current priority. You...", "options": ["Discuss with your senior before deciding", "Accept immediately for career growth", "Reject it to stay loyal to your unit", "Ask a peer for advice"]},
+        {"id": 10, "question": "A junior officer asks for your mentorship on a sensitive matter. You...", "options": ["Provide honest guidance based on experience", "Tell them to ask their direct superior only", "Refer them to a handbook", "Decline to avoid complications"]},
+        {"id": 11, "question": "Resources are scarce and two departments need them urgently. As coordinator, you...", "options": ["Allocate fairly based on mission criticality", "Give more to the senior department", "Split equally regardless of need", "Ask higher authority to decide"]},
+        {"id": 12, "question": "You discover a system inefficiency that could improve operations significantly. You...", "options": ["Propose the improvement through proper channels", "Implement it without approval", "Keep it to yourself to avoid blame", "Suggest it informally to peers"]},
+    ]
+    return {"status": "success", "questions": random.sample(question_pool, min(count, len(question_pool)))}
+
+@app.post("/analyze-oir")
+async def analyze_oir(data: OIRAnalysisRequest):
+    score = 0
+    decisions = []
+    olq_indicators = {"leadership": 0, "adaptability": 0, "team_focus": 0, "ethics": 0, "decisiveness": 0}
+    
+    for answer in data.answers:
+        chosen = answer.get("selected_option", "")
+        # Leadership & Ethics: Speak up, seek clarity, address issues privately
+        if any(kw in chosen.lower() for kw in ["speak", "clarify", "immediately", "private", "honest"]):
+            score += 2.5
+            olq_indicators["leadership"] += 1
+            olq_indicators["ethics"] += 1
+            decisions.append("Leadership Initiative")
+        # Team Focus: Help, consult, listen
+        elif any(kw in chosen.lower() for kw in ["help", "listen", "consult", "fair", "all"]):
+            score += 2.2
+            olq_indicators["team_focus"] += 1
+            decisions.append("Team Synergy")
+        # Adaptability & Decisiveness
+        elif any(kw in chosen.lower() for kw in ["calmly", "focus", "prevent", "propose"]):
+            score += 2.0
+            olq_indicators["adaptability"] += 1
+            olq_indicators["decisiveness"] += 1
+            decisions.append("Adaptive Decision")
+        # Caution / Indecisiveness
+        elif any(kw in chosen.lower() for kw in ["delay", "avoid", "decline", "ask"]):
+            score += 1.0
+            decisions.append("Cautious Approach")
+        else:
+            score += 1.5
+            decisions.append("Balanced Response")
+
+    normalized = round((score / (len(data.answers) * 2.5)) * 100, 1)
+    normalized = min(100, max(0, normalized))
+    
+    # Multi-factor feedback
+    if normalized >= 85:
+        feedback = "Excellent OIR profile: strong leadership, ethics, and team orientation. You demonstrate clear judgment and initiative."
+        strength = "Initiative & Ethics"
+    elif normalized >= 75:
+        feedback = "Very good OIR performance: solid decision-making and team focus. Enhance assertiveness in ethical situations."
+        strength = "Team Synergy"
+    elif normalized >= 60:
+        feedback = "Moderate OIR score: balance decisiveness with team collaboration. Work on clearer leadership voice."
+        strength = "Adaptability"
+    else:
+        feedback = "OIR needs improvement: focus on assertive leadership, ethical clarity, and team-first thinking."
+        strength = "Decisiveness"
+    
+    analysis = {
+        "session_type": "OIR",
+        "timestamp": datetime.now().isoformat(),
+        "score": normalized,
+        "analysis": {
+            "summary": feedback,
+            "strength": strength,
+            "recommended_focus": list(sorted(olq_indicators.items(), key=lambda x: -x[1]))[:3] if any(olq_indicators.values()) else ["Leadership clarity", "Team decision-making", "Ethical judgment"],
+            "decisions": decisions
+        }
+    }
+    user_performance_vault.append({
+        "user_id": data.user_id,
+        "session_type": "OIR",
+        "score": normalized,
+        "details": {"answers": data.answers, "analysis": analysis["analysis"]},
+        "timestamp": analysis["timestamp"]
+    })
+    return analysis
+
+@app.post("/simulate-gd")
+async def simulate_gd(request: GDRequest):
+    participants = [
+        {"name": "Leader", "style": "assertive"},
+        {"name": "Analyst", "style": "logical"},
+        {"name": "Diplomat", "style": "consensus"},
+        {"name": "Implementer", "style": "action-focused"}
+    ]
+    
+    topic_responses = {
+        "Leadership in challenging field conditions": [
+            "Leader: Clear vision and adaptive strategies are essential. We need defined hierarchy but with flexibility for field realities.",
+            "Analyst: Data shows adaptive leaders perform better. Key metrics: response time, team cohesion, mission success rate.",
+            "Diplomat: I agree, but we must balance decisiveness with team input. Psychological safety increases effectiveness.",
+            "Implementer: Right. Let's outline: clear orders, regular feedback loops, and empowered team members. That's proven."
+        ],
+        "Balancing individual goals with unit mission": [
+            "Leader: Unit mission always comes first. Individual aspirations must align with collective objectives.",
+            "Analyst: Studies show personal investment in goals improves performance by 40%. Integration is key.",
+            "Diplomat: We can achieve both. Career growth paths aligned with unit needs create win-win scenarios.",
+            "Implementer: Mentorship programs work well. Senior officers guide juniors toward aligned goals."
+        ],
+        "Adapting to sudden changes in operational plans": [
+            "Leader: Quick decision-making is critical. We need clear contingencies and empowered sub-leaders.",
+            "Analyst: Change management frameworks show transition time is minimized with clear communication.",
+            "Diplomat: Team morale matters in transitions. Transparent reasoning reduces anxiety and builds trust.",
+            "Implementer: Simulation drills and cross-training prepare teams for rapid pivots."
+        ],
+        "Maintaining morale during extended deployments": [
+            "Leader: Maintain purpose and pride in mission. Regular communication about impact is crucial.",
+            "Analyst: Research shows morale correlates with autonomy, purpose, and peer support. Address all three.",
+            "Diplomat: Personal connection with team members matters. One-on-one check-ins build resilience.",
+            "Implementer: Structured recreation, fair duty rotation, and recognition programs are proven morale drivers."
+        ],
+        "Integrating technology with troop readiness": [
+            "Leader: Technology is a force multiplier. Training must be thorough before operational deployment.",
+            "Analyst: New tech adoption curves show 60-day training minimum for full competency.",
+            "Diplomat: We must balance tech adoption with job security concerns. Change management communication is vital.",
+            "Implementer: Phased rollout with peer champions accelerates adoption and identifies issues early."
+        ]
+    }
+    
+    topic_key = request.topic if request.topic in topic_responses else list(topic_responses.keys())[0]
+    base_responses = topic_responses[topic_key]
+    
+    responses = list(base_responses)
+    if request.user_input:
+        sentiment_score = TextBlob(request.user_input).sentiment.polarity
+        if "agree" in request.user_input.lower() or sentiment_score > 0.3:
+            reactions = ["Diplomat: Excellent point! That builds on what was said.", "Leader: I concur. That's constructive thinking."]
+        elif "disagree" in request.user_input.lower() or sentiment_score < -0.2:
+            reactions = ["Analyst: Interesting perspective. Let's examine the data.", "Diplomat: Fair point. Let's explore that further."]
+        else:
+            reactions = ["Leader: Good thinking. Let's develop that.", "Implementer: That's practical. How do we operationalize it?"]
+        responses.append(f"You: {request.user_input}")
+        responses.append(random.choice(reactions))
+    
+    # Scoring based on user participation quality
+    collab_base = 70
+    lead_base = 65
+    comm_base = 75
+    
+    if request.user_input and len(request.user_input) > 20:
+        collab_base += 15
+        lead_base += 12
+        comm_base += 10
+    
+    return {
+        "topic": request.topic,
+        "conversation": responses,
+        "summary": {
+            "collaboration_score": round(collab_base + random.randint(-5, 5), 1),
+            "leadership_score": round(lead_base + random.randint(-5, 5), 1),
+            "communication_score": round(comm_base + random.randint(-5, 5), 1)
+        },
+        "feedback": f"GD performance on '{topic_key}': Your engagement level and perspective contributed to the discussion. Focus on adding 2-3 key points and inviting others' views for stronger presence."
+    }
+
+@app.get("/generate-piqs")
+async def generate_piqs(count: int = 6):
+    piqs = [
+        "Why do you want to join the armed forces?",
+        "Tell us about a time you led a team under pressure.",
+        "What are your strengths and weaknesses?",
+        "How would you handle a conflict within your squad?",
+        "Describe a situation where you had to make a quick decision.",
+        "What values are most important to you as an officer?",
+        "Give an example of when you showed initiative and took responsibility.",
+        "Tell us about a failure and how you overcame it.",
+        "How do you stay motivated during difficult times?",
+        "Describe your approach to team motivation and discipline.",
+        "What is your understanding of service and sacrifice?",
+        "How do you balance personal ambitions with team objectives?",
+        "Tell us about a time you had to make an ethical decision.",
+        "How would you handle a senior officer's unreasonable order?",
+        "What preparation have you done for armed forces service?",
+        "Describe your academic and sports achievements and their relevance.",
+        "How do you manage stress and maintain composure in crisis?",
+        "What does patriotism mean to you in practical terms?",
+        "Tell us about your family background and its influence on you.",
+        "How would you contribute to unit cohesion and camaraderie?"
+    ]
+    return {"status": "success", "piqs": random.sample(piqs, min(count, len(piqs)))}
+
+@app.post("/analyze-pi")
+async def analyze_pi(data: PIAnalysisRequest):
+    answer_text = data.answer.lower()
+    blob = TextBlob(data.answer)
+    sentiment = blob.sentiment.polarity
+    
+    # Multi-factor scoring
+    score = 50  # baseline
+    factors = {}
+    recommendations = []
+    
+    # 1. Sentiment & Tone (positive language)
+    if sentiment > 0.3:
+        score += 15
+        factors["Tone"] = "Positive & Confident"
+    elif sentiment > 0:
+        score += 8
+        factors["Tone"] = "Neutral"
+    else:
+        factors["Tone"] = "Could be more positive"
+        recommendations.append("Use more positive, confident language and avoid negative framing.")
+    
+    # 2. Clarity & Structure
+    sentences = [s.strip() for s in data.answer.split(".") if s.strip()]
+    if 4 <= len(sentences) <= 8:
+        score += 12
+        factors["Structure"] = "Well-organized"
+    elif len(sentences) >= 9:
+        factors["Structure"] = "Good, but consider being more concise"
+        recommendations.append("Structure your answer in 4-6 clear, focused sentences for maximum impact.")
+    else:
+        factors["Structure"] = "Too brief"
+        recommendations.append("Expand your answer with examples and details. Aim for 4-6 sentences.")
+    
+    # 3. Service & Leadership Keywords
+    service_keywords = ["serve", "country", "leadership", "responsibility", "team", "mission", "duty", "sacrifice", "commitment"]
+    service_count = sum(1 for kw in service_keywords if kw in answer_text)
+    if service_count >= 4:
+        score += 15
+        factors["Values"] = "Strong service orientation"
+    elif service_count >= 2:
+        score += 8
+        factors["Values"] = "Adequate values articulation"
+    else:
+        factors["Values"] = "Limited service focus"
+        recommendations.append("Emphasize service to nation, leadership values, team commitment, and personal duty.")
+    
+    # 4. Personal Examples (length indicates detail)
+    if len(data.answer.split()) > 60:
+        score += 10
+        factors["Examples"] = "Rich with examples"
+    elif len(data.answer.split()) >= 40:
+        score += 5
+        factors["Examples"] = "Has some specifics"
+    else:
+        factors["Examples"] = "Needs more concrete examples"
+        recommendations.append("Include specific personal examples or anecdotes to illustrate your points.")
+    
+    # Normalize score
+    score = round(min(100, max(0, score)), 1)
+    
+    # Tier-based feedback
+    if score >= 85:
+        primary_feedback = "Excellent answer: Clear structure, strong values, and confident delivery. You demonstrate readiness for officer training."
+    elif score >= 75:
+        primary_feedback = "Very good answer: Good values and structure. Minor enhancements in examples or conciseness would strengthen it further."
+    elif score >= 60:
+        primary_feedback = "Moderate answer: The core is there, but needs sharper focus on service values and concrete examples. Work on structured delivery."
+    else:
+        primary_feedback = "Needs improvement: Focus on clarity, positive tone, and articulating your service motivation with specific examples."
+    
+    if not recommendations:
+        recommendations = [
+            "Maintain this confident, structured approach in interviews.",
+            "Your values-driven perspective will resonate with interviewers.",
+            "Practice concise, impactful delivery under time pressure."
+        ]
+    
+    result = {
+        "session_type": "PI",
+        "timestamp": datetime.now().isoformat(),
+        "question": data.question,
+        "answer": data.answer,
+        "score": score,
+        "feedback": primary_feedback,
+        "factors": factors,
+        "recommendations": recommendations
+    }
+    user_performance_vault.append({
+        "user_id": data.user_id,
+        "session_type": "PI",
+        "score": score,
+        "details": {"question": data.question, "answer": data.answer, "feedback": primary_feedback, "factors": factors},
+        "timestamp": result["timestamp"]
+    })
+    return result
+
 # --- ADD THIS: Root route for easy debugging ---
 @app.get("/")
 async def root():
@@ -197,4 +633,5 @@ async def root():
 # --- 6. SERVER STARTUP ---
 if __name__ == "__main__":
     # Change host to 127.0.0.1 to match your frontend fetch exactly
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    # Enable reload for development so changes to this file take effect automatically.
+    uvicorn.run(app, host="127.0.0.1", port=8000, reload=True)

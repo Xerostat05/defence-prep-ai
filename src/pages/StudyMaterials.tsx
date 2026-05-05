@@ -2,11 +2,58 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
-import { BookOpen, FileText, Video, ExternalLink, ChevronDown, ChevronUp, Shield, Swords, Brain, Users, Sparkles, Loader2 } from "lucide-react";
+import { BookOpen, FileText, Video, ExternalLink, ChevronDown, ChevronUp, Shield, Swords, Brain, Users, Sparkles, Loader2, LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { buildBackendUrl } from '@/lib/api';
 
-// ... (Material and Category types remain the same)
+type Material = {
+  title: string;
+  description: string;
+  url: string;
+  source: string;
+};
+
+type Category = {
+  id: string;
+  title: string;
+  color: string;
+  icon: LucideIcon;
+  materials: Material[];
+};
+
+const categories: Category[] = [
+  {
+    id: 'nda',
+    title: 'NDA & Defence Notes',
+    color: 'bg-amber-100',
+    icon: BookOpen,
+    materials: [
+      { title: 'Defence Strategy Overview', description: 'Key concepts for NDA and military strategy.', url: 'https://example.com/defence-strategy', source: 'Trusted Notes' },
+      { title: 'Service Ethics Handbook', description: 'Officer values, discipline, and leadership ethics.', url: 'https://example.com/service-ethics', source: 'Official Guide' }
+    ]
+  },
+  {
+    id: 'general-ability',
+    title: 'General Ability',
+    color: 'bg-sky-100',
+    icon: Shield,
+    materials: [
+      { title: 'Quantitative Aptitude Practice', description: 'Math shortcuts and practice problems.', url: 'https://example.com/quant-practice', source: 'Prep Portal' },
+      { title: 'Reasoning Patterns', description: 'Critical thinking and logic question bank.', url: 'https://example.com/reasoning-patterns', source: 'AI Notes' }
+    ]
+  },
+  {
+    id: 'interview',
+    title: 'Interview & Personality',
+    color: 'bg-violet-100',
+    icon: Users,
+    materials: [
+      { title: 'PI Question Sets', description: 'Common PI questions and scoring pointers.', url: 'https://example.com/pi-questions', source: 'Expert Panel' },
+      { title: 'Group Discussion Tips', description: 'How to perform effectively in GD rounds.', url: 'https://example.com/gd-tips', source: 'Exam Guru' }
+    ]
+  }
+];
 
 const StudyMaterials = () => {
   const { user, loading } = useAuth();
@@ -30,7 +77,7 @@ const StudyMaterials = () => {
     // That is what causes the "Edge Function" error.
     
     // INSTEAD, use a direct fetch to your Python terminal:
-    const response = await fetch("http://127.0.0.1:8000/analyze-ssb", { 
+    const response = await fetch(buildBackendUrl('/analyze-ssb'), { 
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ 

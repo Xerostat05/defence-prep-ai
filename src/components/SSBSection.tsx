@@ -2,12 +2,12 @@ import { motion } from "framer-motion";
 import { ClipboardList, MessageSquare, Users, Eye, Mic, PenTool } from "lucide-react";
 
 const ssbModules = [
-  { icon: Eye, name: "OIR Tests", desc: "Officer Intelligence Rating practice with timed sessions" },
-  { icon: PenTool, name: "TAT Practice", desc: "Thematic Apperception Tests with AI narration feedback" },
-  { icon: MessageSquare, name: "WAT Trainer", desc: "Word Association Tests under real exam pressure" },
-  { icon: ClipboardList, name: "SRT Bank", desc: "1000+ Situation Reaction Tests with model responses" },
-  { icon: Users, name: "GD Simulator", desc: "AI-powered Group Discussion practice and evaluation" },
-  { icon: Mic, name: "PI Preparation", desc: "Personal Interview prep with AI-generated PIQ questions" },
+  { icon: Eye, name: "OIR Tests", desc: "Officer Intelligence Rating practice with timed sessions", path: "/oir-practice" },
+  { icon: PenTool, name: "TAT Practice", desc: "Thematic Apperception Tests with AI narration feedback", path: "/tat-practice" },
+  { icon: MessageSquare, name: "WAT Trainer", desc: "Word Association Tests under real exam pressure", path: "/wat-practice" },
+  { icon: ClipboardList, name: "SRT Bank", desc: "1000+ Situation Reaction Tests with model responses", path: "/srt-practice" },
+  { icon: Users, name: "GD Simulator", desc: "AI-powered Group Discussion practice and evaluation", path: "/gd-simulator" },
+  { icon: Mic, name: "PI Preparation", desc: "Personal Interview prep with AI-generated PIQ questions", path: "/pi-preparation" },
 ];
 
 const SSBSection = () => {
@@ -44,7 +44,7 @@ const SSBSection = () => {
               transition={{ delay: i * 0.1, duration: 0.5 }}
               whileHover={{ scale: 1.03 }}
               className="group bg-primary-foreground/5 backdrop-blur-sm border border-primary-foreground/10 rounded-xl p-6 hover:bg-primary-foreground/10 transition-all duration-300 cursor-pointer"
-              onClick={() => window.location.href = ["OIR Tests", "TAT Practice", "WAT Trainer", "SRT Bank"].includes(module.name) ? "/ssb-practice" : "/exam/ssb-interview"}
+              onClick={() => window.location.href = module.path}
             >
               <module.icon className="h-8 w-8 text-gold mb-4" />
               <h3 className="font-display text-lg font-bold text-primary-foreground mb-2">
