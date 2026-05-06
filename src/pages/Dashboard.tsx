@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import Navbar from "@/components/Navbar";
 import AIInsightsPanel from "@/components/AIInsightsPanel";
+import DailyGoalsSection from "@/components/DailyGoalsSection";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 
@@ -271,17 +272,18 @@ const Dashboard = () => {
           </motion.div>
         )}
 
-        {/* AI Insights Section */}
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="h-5 w-5 text-gold" />
-            <h2 className="font-display text-lg font-semibold text-foreground">Command Center</h2>
-            {!insightsLoading && (
-              <Button variant="ghost" size="sm" onClick={fetchInsights} className="text-xs text-muted-foreground hover:text-gold ml-auto">
-                Refresh Mission
-              </Button>
-            )}
-          </div>
+        {/* Command Center + Daily Goals */}
+        <div className="mb-8 grid gap-6 lg:grid-cols-[2fr_1fr]">
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="h-5 w-5 text-gold" />
+              <h2 className="font-display text-lg font-semibold text-foreground">Command Center</h2>
+              {!insightsLoading && (
+                <Button variant="ghost" size="sm" onClick={fetchInsights} className="text-xs text-muted-foreground hover:text-gold ml-auto">
+                  Refresh Mission
+                </Button>
+              )}
+            </div>
 
           {insightsLoading ? (
             <div className="grid md:grid-cols-3 gap-4">
@@ -343,7 +345,49 @@ const Dashboard = () => {
                 </Card>
               </motion.div>
             </div>
-          ) : null}
+          ) : (
+            <div className="space-y-4">
+              <Card className="border-border bg-card/80 shadow-card">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.2em] text-gold font-semibold mb-2">Ready for action</p>
+                      <h3 className="text-2xl font-semibold text-foreground">Your command post is standing by</h3>
+                      <p className="mt-3 text-sm text-muted-foreground">Refresh the mission to receive a new AI briefing, or use the quick action cards below to continue your preparation.</p>
+                    </div>
+                    <div className="inline-flex items-center justify-center rounded-full border border-gold/30 bg-gold/10 h-12 w-12 text-gold">
+                      <Sparkles className="h-6 w-6" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                <Card className="border-border bg-slate-950/80">
+                  <CardContent className="p-5">
+                    <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-2">Quick Launch</p>
+                    <button
+                      onClick={() => navigate("/mock-test")}
+                      className="w-full rounded-full bg-gold text-accent-foreground py-3 text-sm font-medium hover:bg-gold-light transition"
+                    >
+                      Start a Mock Test
+                    </button>
+                  </CardContent>
+                </Card>
+                <Card className="border-border bg-slate-950/80">
+                  <CardContent className="p-5">
+                    <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-2">Daily Focus</p>
+                    <button
+                      onClick={() => navigate("/analysis")}
+                      className="w-full rounded-full border border-gold/20 text-gold py-3 text-sm font-medium hover:bg-gold/10 transition"
+                    >
+                      Review AI Insights
+                    </button>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
 
           {/* Daily Challenge */}
           {insights?.challenge && (
@@ -384,6 +428,10 @@ const Dashboard = () => {
               </Card>
             </motion.div>
           )}
+        </div>
+          <div>
+            <DailyGoalsSection />
+          </div>
         </div>
 
         {/* Advanced AI Insights Panel */}

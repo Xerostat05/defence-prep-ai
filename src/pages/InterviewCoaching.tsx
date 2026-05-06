@@ -111,14 +111,14 @@ const InterviewCoaching = () => {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0f1d] text-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-[#06111c] text-slate-100 flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[#d4af37]" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0f1d] text-slate-100 font-sans">
+    <div className="min-h-screen bg-[#06111c] text-slate-100 font-sans">
       <Navbar />
 
       <main className="pt-24 pb-16 container mx-auto px-4">
@@ -141,7 +141,7 @@ const InterviewCoaching = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Chat Interface */}
             <div className="lg:col-span-2">
-              <Card className="bg-gradient-to-br from-slate-900/40 to-slate-800/40 border-white/5 rounded-[2rem] overflow-hidden backdrop-blur-sm">
+              <Card className="bg-slate-900/80 border border-white/10 rounded-[2rem] overflow-hidden backdrop-blur-xl shadow-2xl shadow-black/20">
                 <CardHeader className="border-b border-white/5">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-xl text-white flex items-center gap-2">
@@ -158,9 +158,9 @@ const InterviewCoaching = () => {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="p-6">
+                <CardContent className="p-6 bg-slate-950/70 backdrop-blur-xl">
                   {/* Conversation Display */}
-                  <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
+                  <div className="space-y-4 mb-6 max-h-96 overflow-y-auto pr-2">
                     {conversation.length === 0 ? (
                       <div className="text-center py-8">
                         <MessageSquare className="h-12 w-12 text-slate-600 mx-auto mb-4" />
@@ -200,7 +200,7 @@ const InterviewCoaching = () => {
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       placeholder="Type your response or question..."
-                      className="flex-1 bg-slate-900/50 border-white/5 text-white placeholder-slate-400 resize-none"
+                      className="flex-1 bg-slate-950/80 border border-white/10 text-white placeholder-slate-500 resize-none focus:border-gold focus:ring-2 focus:ring-gold/20"
                       rows={2}
                       onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
                     />
@@ -228,13 +228,13 @@ const InterviewCoaching = () => {
 
             {/* Session History */}
             <div className="space-y-6">
-              <Card className="bg-gradient-to-br from-slate-900/40 to-slate-800/40 border-white/5 rounded-[2rem] overflow-hidden backdrop-blur-sm">
-                <CardHeader className="border-b border-white/5">
+              <Card className="bg-slate-900/80 border border-white/10 rounded-[2rem] overflow-hidden backdrop-blur-xl shadow-2xl shadow-black/20">
+                <CardHeader className="border-b border-white/10">
                   <CardTitle className="text-lg text-white">Recent Sessions</CardTitle>
                 </CardHeader>
-                <CardContent className="p-4">
+                <CardContent className="p-4 bg-slate-950/80 backdrop-blur-xl">
                   {sessions.length === 0 ? (
-                    <p className="text-slate-400 text-sm">No sessions yet</p>
+                    <p className="text-slate-300 text-sm">No sessions yet</p>
                   ) : (
                     <div className="space-y-3">
                       {sessions.map((session) => (
@@ -257,11 +257,11 @@ const InterviewCoaching = () => {
                 </CardContent>
               </Card>
 
-              <Card className="bg-gradient-to-br from-slate-900/40 to-slate-800/40 border-white/5 rounded-[2rem] overflow-hidden backdrop-blur-sm">
-                <CardHeader className="border-b border-white/5">
+              <Card className="bg-slate-900/80 border border-white/10 rounded-[2rem] overflow-hidden backdrop-blur-xl shadow-2xl shadow-black/20">
+                <CardHeader className="border-b border-white/10">
                   <CardTitle className="text-lg text-white">Tips</CardTitle>
                 </CardHeader>
-                <CardContent className="p-4">
+                <CardContent className="p-4 bg-slate-950/80 backdrop-blur-xl">
                   <ul className="space-y-2 text-sm text-slate-300">
                     <li>• Be specific in your questions</li>
                     <li>• Practice common interview scenarios</li>

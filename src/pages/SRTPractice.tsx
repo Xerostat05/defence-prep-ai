@@ -27,8 +27,6 @@ const SRTPractice = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState(30);
-  const [sessionTimeLeft, setSessionTimeLeft] = useState(300);
-  const [timeLeft, setTimeLeft] = useState(30);
   const [sessionTimeLeft, setSessionTimeLeft] = useState(1800);
 
   // Fetch SRT situations on component mount

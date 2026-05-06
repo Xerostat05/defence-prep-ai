@@ -16,12 +16,13 @@ const AIFeaturesSection = () => {
   return (
     <section id="ai-features" className="py-20 lg:py-28 bg-muted/50">
       <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
+        <div className="rounded-[2rem] border border-white/10 bg-slate-950/20 backdrop-blur-xl p-8 md:p-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
           <span className="text-sm font-semibold tracking-widest text-gold uppercase">AI-Powered</span>
           <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mt-3 mb-4">
             Intelligence That <span className="text-gradient-gold">Trains</span> You
@@ -56,6 +57,7 @@ const AIFeaturesSection = () => {
           ))}
         </div>
       </div>
+    </div>
     </section>
   );
 };

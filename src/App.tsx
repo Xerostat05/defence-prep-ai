@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ChatWidget from "@/components/ChatWidget";
+import TodoWidget from "@/components/TodoWidget";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -20,6 +21,7 @@ import Profile from "./pages/Profile";
 import SSBPractice from "./pages/SSBPractice";
 import Flashcards from "./pages/Flashcards";
 import WATPractice from "./pages/WATPractice"; // Added import
+import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 import TATPractice from "./pages/TATPractice";
 import SRTPractice from "./pages/SRTPractice";
@@ -61,12 +63,14 @@ const App = () => (
             <Route path="/gd-simulator" element={<GDSimulator />} />
             <Route path="/pi-preparation" element={<PIPreparation />} />
             <Route path="/interview-coaching" element={<InterviewCoaching />} />
+            <Route path="/about" element={<About />} />
             <Route path="/holistic-analysis" element={<HolisticAnalysis />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
           <ChatWidget />
+          <TodoWidget />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

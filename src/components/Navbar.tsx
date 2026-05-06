@@ -1,22 +1,53 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 
 const navLinks = [
-  { label: "Home", href: "#" },
-  { label: "Exams", href: "#exams" },
-  { label: "AI Features", href: "#ai-features" },
-  { label: "SSB Prep", href: "#ssb" },
-  { label: "About", href: "#about" },
+  { label: "Home", path: "/" },
+  { label: "Exams", path: "/#exams" },
+  { label: "AI Features", path: "/#ai-features" },
+  { label: "SSB Prep", path: "/#ssb" },
+  { label: "About", path: "/about" },
 ];
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const scrollToHash = (hash: string) => {
+    const id = hash.replace("#", "");
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const handleNav = (path: string) => {
+    if (path.includes("#")) {
+      const [pathname, hash] = path.split("#");
+      const targetPath = pathname || "/";
+
+      if (location.pathname === targetPath) {
+        navigate(path, { replace: false });
+        scrollToHash(`#${hash}`);
+      } else {
+        navigate(path, { replace: false });
+      }
+    } else {
+      navigate(path, { replace: false });
+    }
+  };
+
+  useEffect(() => {
+    if (location.hash) {
+      scrollToHash(location.hash);
+    }
+  }, [location.pathname, location.hash]);
 
   return (
     <motion.nav
@@ -36,13 +67,13 @@ const Navbar = () => {
 
           <div className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
-              <a
+              <button
                 key={link.label}
-                href={link.href}
+                onClick={() => handleNav(link.path)}
                 className="text-sm font-medium text-primary-foreground/80 hover:text-gold transition-colors duration-200"
               >
                 {link.label}
-              </a>
+              </button>
             ))}
           </div>
 
@@ -85,14 +116,13 @@ const Navbar = () => {
           >
             <div className="flex flex-col gap-3">
               {navLinks.map((link) => (
-                <a
+                <button
                   key={link.label}
-                  href={link.href}
-                  className="text-primary-foreground/80 hover:text-gold py-2 transition-colors"
-                  onClick={() => setIsOpen(false)}
+                  onClick={() => { handleNav(link.path); setIsOpen(false); }}
+                  className="text-primary-foreground/80 hover:text-gold py-2 transition-colors text-left"
                 >
                   {link.label}
-                </a>
+                </button>
               ))}
               <div className="flex flex-col gap-2 pt-2 border-t border-gold/20">
                 {user ? (

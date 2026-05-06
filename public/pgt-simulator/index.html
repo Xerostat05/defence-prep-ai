@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PGT Simulator — OliveWings</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;500;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="src/style.css" />
+</head>
+<body>
+
+<!-- ═══════════════════ SCREEN: TITLE ═══════════════════ -->
+<div id="screen-title" class="screen active">
+  <div class="grain"></div>
+  <nav class="nav">
+    <div class="nav-brand">
+      <span class="brand-icon">⬡</span>
+      <span class="brand-text">OliveWings</span>
+    </div>
+    <div class="nav-tag">PGT Simulator v1.0</div>
+  </nav>
+
+  <div class="title-content">
+    <div class="title-eyebrow">Progressive Group Task</div>
+    <h1 class="title-main">BALLI FATTA<br /><span class="accent">RASSI</span></h1>
+    <p class="title-desc">
+      A high-fidelity simulation of the PGT obstacle — the iconic pole-tied-with-rope structure.
+      Master the rules, engineer solutions, and earn your OLQ rating under a live countdown.
+    </p>
+
+    <div class="rules-grid">
+      <div class="rule-card">
+        <div class="rule-num">01</div>
+        <div class="rule-body">
+          <div class="rule-title">The Balli Fatta Rassi</div>
+          <div class="rule-desc">A bamboo pole (balli) lashed with rope (rassi) to create the load carrier. It cannot touch the ground between Start and End banks.</div>
+        </div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">02</div>
+        <div class="rule-body">
+          <div class="rule-title">Out-of-Bounds</div>
+          <div class="rule-desc">Sand/water between banks is Out of Bounds (OOB). No person or equipment may touch the OOB area at any time.</div>
+        </div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">03</div>
+        <div class="rule-body">
+          <div class="rule-title">Equipment Rules</div>
+          <div class="rule-desc">Plank, rope, and pole must be used to bridge the gap. Red-marked structures are out-of-bounds for resting equipment.</div>
+        </div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">04</div>
+        <div class="rule-body">
+          <div class="rule-title">Team Leadership</div>
+          <div class="rule-desc">The commander delegates roles. One person acts as load-carrier anchor, others act as stabilisers and guides.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="title-actions">
+      <button class="btn-primary" onclick="App.startGame()">
+        <span>Begin Mission</span>
+        <span class="btn-arrow">→</span>
+      </button>
+      <div class="title-meta">3 Phases · 12 Questions · 5-Min Timer per Phase</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ SCREEN: BRIEFING ═══════════════════ -->
+<div id="screen-briefing" class="screen">
+  <div class="grain"></div>
+  <nav class="nav">
+    <div class="nav-brand"><span class="brand-icon">⬡</span><span class="brand-text">OliveWings</span></div>
+    <div class="timer-display">
+      <span class="timer-label">TIME</span>
+      <span class="timer-value" id="timer-display">5:00</span>
+    </div>
+  </nav>
+
+  <div class="game-layout">
+    <!-- Left panel: Visual obstacle -->
+    <div class="obstacle-panel">
+      <div class="obstacle-header">
+        <div class="phase-tag" id="phase-tag">Phase 1 — Setup</div>
+        <div class="q-counter" id="q-counter">Q 1/4</div>
+      </div>
+
+      <!-- Progress dots -->
+      <div class="progress-dots" id="progress-dots"></div>
+
+      <!-- SVG Obstacle Visual -->
+      <div class="obstacle-visual" id="obstacle-visual">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Equipment inventory -->
+      <div class="equipment-rack" id="equipment-rack">
+        <div class="eq-title">Equipment</div>
+        <div class="eq-items" id="eq-items"></div>
+      </div>
+
+      <!-- OLQ live meters -->
+      <div class="live-meters">
+        <div class="meter-row">
+          <span class="meter-label">Logic</span>
+          <div class="meter-track"><div class="meter-fill logic-fill" id="m-logic"></div></div>
+          <span class="meter-val" id="mv-logic">0</span>
+        </div>
+        <div class="meter-row">
+          <span class="meter-label">Grit</span>
+          <div class="meter-track"><div class="meter-fill grit-fill" id="m-grit"></div></div>
+          <span class="meter-val" id="mv-grit">0</span>
+        </div>
+        <div class="meter-row">
+          <span class="meter-label">Influence</span>
+          <div class="meter-track"><div class="meter-fill inf-fill" id="m-inf"></div></div>
+          <span class="meter-val" id="mv-inf">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right panel: Question -->
+    <div class="question-panel">
+      <div class="scenario-tag" id="scenario-tag">Scenario</div>
+      <div class="scenario-text" id="scenario-text"></div>
+      <div class="twist-banner" id="twist-banner" style="display:none">
+        <span class="twist-icon">⚡</span>
+        <span id="twist-text"></span>
+      </div>
+      <div class="question-text" id="question-text"></div>
+      <div class="choices-list" id="choices-list"></div>
+      <div class="feedback-area" id="feedback-area"></div>
+      <button class="btn-next" id="btn-next" style="display:none" onclick="App.nextQuestion()">
+        Continue <span>→</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ SCREEN: RESULTS ═══════════════════ -->
+<div id="screen-results" class="screen">
+  <div class="grain"></div>
+  <nav class="nav">
+    <div class="nav-brand"><span class="brand-icon">⬡</span><span class="brand-text">OliveWings</span></div>
+    <div class="nav-tag">Mission Debrief</div>
+  </nav>
+
+  <div class="results-content">
+    <div class="results-left">
+      <div class="debrief-label">Assessor's Report</div>
+      <div class="result-rank" id="result-rank">Outstanding</div>
+      <div class="result-score-wrap">
+        <div class="result-score-big" id="result-score">--</div>
+        <div class="result-score-label">/ 100</div>
+      </div>
+
+      <div class="result-stats">
+        <div class="stat-item">
+          <div class="stat-val" id="stat-acc">--%</div>
+          <div class="stat-label">Accuracy</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val" id="stat-speed">--</div>
+          <div class="stat-label">Speed pts</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val" id="stat-twists">--</div>
+          <div class="stat-label">Twists cleared</div>
+        </div>
+      </div>
+
+      <div class="olq-tags-wrap" id="olq-tags"></div>
+      <button class="btn-primary" onclick="App.restart()" style="margin-top:2rem">
+        <span>Run Again</span><span class="btn-arrow">→</span>
+      </button>
+    </div>
+
+    <div class="results-right">
+      <div class="olq-section-title">OLQ Performance</div>
+      <div class="olq-bar-group">
+        <div class="olq-bar-item">
+          <div class="olq-bar-label">
+            <span>Logic & Reasoning</span><span id="r-logic">0/10</span>
+          </div>
+          <div class="olq-bar-track">
+            <div class="olq-bar-fill logic-bar" id="rb-logic"></div>
+          </div>
+          <div class="olq-bar-note" id="rn-logic"></div>
+        </div>
+        <div class="olq-bar-item">
+          <div class="olq-bar-label">
+            <span>Grit & Stamina</span><span id="r-grit">0/10</span>
+          </div>
+          <div class="olq-bar-track">
+            <div class="olq-bar-fill grit-bar" id="rb-grit"></div>
+          </div>
+          <div class="olq-bar-note" id="rn-grit"></div>
+        </div>
+        <div class="olq-bar-item">
+          <div class="olq-bar-label">
+            <span>Influence</span><span id="r-inf">0/10</span>
+          </div>
+          <div class="olq-bar-track">
+            <div class="olq-bar-fill inf-bar" id="rb-inf"></div>
+          </div>
+          <div class="olq-bar-note" id="rn-inf"></div>
+        </div>
+      </div>
+
+      <div class="remarks-title">Assessor's Remarks</div>
+      <div class="remarks-text" id="remarks-text"></div>
+
+      <div class="next-steps-title">Recommended Focus Areas</div>
+      <div class="next-steps" id="next-steps"></div>
+    </div>
+  </div>
+</div>
+
+<script src="src/game.js"></script>
+</body>
+</html>

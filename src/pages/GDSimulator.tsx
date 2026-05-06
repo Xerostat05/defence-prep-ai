@@ -4,9 +4,22 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
-import { Loader2, ArrowLeft, Users, MessageCircle } from "lucide-react";
+import { ArrowLeft, Users, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { buildBackendUrl } from '@/lib/api';
+
+interface GDSummary {
+  collaboration_score: number;
+  leadership_score: number;
+  communication_score: number;
+}
+
+interface GDResponse {
+  conversation: string[];
+  summary: GDSummary;
+  feedback: string;
+  topic: string;
+}
 
 const topics = [
   "Leadership in challenging field conditions",
@@ -27,14 +40,36 @@ const GDSimulator = () => {
   const [selectedTopic, setSelectedTopic] = useState(topics[0]);
   const [userInput, setUserInput] = useState("");
   const [conversation, setConversation] = useState<string[]>([]);
-  const [summary, setSummary] = useState<any>(null);
+  const [displayedConversation, setDisplayedConversation] = useState<string[]>([]);
+  const [currentLine, setCurrentLine] = useState(0);
+  const [summary, setSummary] = useState<GDSummary | null>(null);
+  const [feedback, setFeedback] = useState("");
   const [loading, setLoading] = useState(false);
+  const [simulationActive, setSimulationActive] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/auth");
     }
   }, [user, authLoading, navigate]);
+
+  useEffect(() => {
+    if (!simulationActive || conversation.length === 0) {
+      return;
+    }
+
+    if (currentLine >= conversation.length) {
+      setSimulationActive(false);
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setDisplayedConversation((prev) => [...prev, conversation[currentLine]]);
+      setCurrentLine((prev) => prev + 1);
+    }, 900);
+
+    return () => window.clearTimeout(timer);
+  }, [simulationActive, conversation, currentLine]);
 
   const handleSimulate = async () => {
     if (!userInput.trim()) {
@@ -44,7 +79,11 @@ const GDSimulator = () => {
 
     setLoading(true);
     setConversation([]);
+    setDisplayedConversation([]);
+    setCurrentLine(0);
     setSummary(null);
+    setFeedback("");
+    setSimulationActive(false);
 
     try {
       const response = await fetch(buildBackendUrl('/simulate-gd'), {
@@ -59,15 +98,16 @@ const GDSimulator = () => {
 
       if (!response.ok) {
         console.error("GD simulation failed:", response.status);
-        // Show fallback realistic simulation
         showFallbackSimulation();
         return;
       }
-      
-      const data = await response.json();
+
+      const data: GDResponse = await response.json();
       setConversation(data.conversation || []);
       setSummary(data.summary || null);
-      toast.success("GD simulation completed.");
+      setFeedback(data.feedback || "AI summary unavailable.");
+      setSimulationActive(true);
+      toast.success("GD simulation started.");
     } catch (err) {
       console.error("GD simulation error:", err);
       showFallbackSimulation();
@@ -85,11 +125,15 @@ const GDSimulator = () => {
       "Implementer: Right, and we need actionable steps. Who owns each piece?"
     ];
     setConversation(fallbackConvo);
+    setDisplayedConversation([]);
+    setCurrentLine(0);
     setSummary({
       collaboration_score: 72 + Math.random() * 15,
       leadership_score: 68 + Math.random() * 15,
       communication_score: 75 + Math.random() * 15
     });
+    setFeedback("Fallback feedback: keep engaging with clear action points and invite others' views.");
+    setSimulationActive(true);
     toast.success("GD simulation completed with AI fallback.");
   };
 
@@ -150,15 +194,24 @@ const GDSimulator = () => {
               <Card className="bg-slate-900/80 border-white/10">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5 text-gold" /> Conversation Flow
+                    <Users className="h-5 w-5 text-gold" /> Real-time Discussion
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {conversation.map((line, index) => (
+                  <div className="flex items-center justify-between rounded-3xl bg-slate-950/80 p-4 border border-white/10">
+                    <span className="text-sm text-slate-400">Progress</span>
+                    <span className="text-sm text-white">{displayedConversation.length}/{conversation.length} turns</span>
+                  </div>
+                  {displayedConversation.map((line, index) => (
                     <div key={index} className="rounded-2xl bg-slate-950/70 p-4 border border-white/5">
                       <p className="text-slate-200">{line}</p>
                     </div>
                   ))}
+                  {simulationActive && displayedConversation.length < conversation.length && (
+                    <div className="rounded-2xl bg-slate-950/70 p-4 border border-dashed border-white/10 text-slate-400">
+                      AI is generating the next turn...
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
@@ -181,7 +234,7 @@ const GDSimulator = () => {
                 <CardHeader>
                   <CardTitle>Instant Feedback</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3 text-slate-100">
+                <CardContent className="space-y-4 text-slate-100">
                   <div className="rounded-2xl bg-slate-950/70 p-4 border border-white/10">
                     <p className="font-semibold">Leadership score</p>
                     <p>{summary.leadership_score}%</p>
@@ -194,6 +247,12 @@ const GDSimulator = () => {
                     <p className="font-semibold">Communication score</p>
                     <p>{summary.communication_score}%</p>
                   </div>
+                  {feedback && (
+                    <div className="rounded-2xl bg-slate-950/70 p-4 border border-white/10 text-slate-300">
+                      <p className="font-semibold">AI Feedback</p>
+                      <p>{feedback}</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
