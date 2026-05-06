@@ -10,6 +10,7 @@ const navLinks = [
   { label: "Exams", path: "/#exams" },
   { label: "AI Features", path: "/#ai-features" },
   { label: "SSB Prep", path: "/#ssb" },
+  { label: "PGT Simulator", path: "/pgt-simulator/index.html" },
   { label: "About", path: "/about" },
 ];
 
@@ -28,6 +29,11 @@ const Navbar = () => {
   };
 
   const handleNav = (path: string) => {
+    if (path.endsWith('.html')) {
+      window.location.href = path;
+      return;
+    }
+
     if (path.includes("#")) {
       const [pathname, hash] = path.split("#");
       const targetPath = pathname || "/";

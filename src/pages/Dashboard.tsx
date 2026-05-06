@@ -34,6 +34,13 @@ const dashboardItems = [
     color: "bg-gold/10 text-gold" 
   },
   { 
+    title: "PGT Simulator", 
+    desc: "Balli Fatta Rassi mission simulator for OLQ practice", 
+    icon: Target, 
+    path: "/pgt-simulator/index.html", 
+    color: "bg-primary/10 text-primary" 
+  },
+  { 
     title: "SSB Practice", 
     desc: "Timed WAT, TAT, SRT with real-time AI feedback", 
     icon: Brain, 
@@ -451,7 +458,7 @@ const Dashboard = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 * i }}
-              onClick={() => navigate(item.path)}
+              onClick={() => item.path.endsWith(".html") ? window.location.href = item.path : navigate(item.path)}
               className="bg-card rounded-xl border border-border p-6 shadow-card hover:shadow-card-hover transition-all text-left group"
             >
               <div className={`p-3 rounded-xl w-fit mb-4 ${item.color}`}>

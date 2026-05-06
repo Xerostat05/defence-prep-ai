@@ -287,6 +287,40 @@ html, body {
 }
 .obstacle-visual svg { display: block; }
 
+.interactive-scene {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+.interactive-header {
+  font-family: var(--condensed);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--olive-lt);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.interactive-description {
+  font-size: 0.84rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+.drag-feedback {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--text);
+  padding: 0.85rem 1rem;
+  background: rgba(122, 140, 62, 0.05);
+  border: 1px solid rgba(122, 140, 62, 0.18);
+  border-radius: 0.75rem;
+}
+.drag-feedback.drag-warning {
+  color: var(--amber);
+  background: rgba(212, 146, 42, 0.08);
+  border-color: rgba(212, 146, 42, 0.25);
+}
+
 /* Equipment rack */
 .equipment-rack {}
 .eq-title {

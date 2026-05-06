@@ -479,6 +479,7 @@ const VISUALS = {
   <text x="33" y="160" font-family="Space Mono,monospace" font-size="5" fill="#7a5520" text-anchor="middle">PLANK</text>
 </svg>`,
 
+
   execution: `
 <svg viewBox="0 0 300 200" width="300" height="200" xmlns="http://www.w3.org/2000/svg">
   <rect width="300" height="200" fill="#0d0f0b"/>
@@ -555,6 +556,39 @@ const VISUALS = {
 </svg>`
 };
 
+const OBSTACLE_SETUPS = [
+  {
+    id: 'classic',
+    label: 'Classic Bank Crossing',
+    description: 'Standard pillar banks with a central red stump OOB marker.',
+    leftPillar: 72,
+    rightPillar: 218,
+    stumpX: 144,
+    plankY: 148,
+    platform: false,
+  },
+  {
+    id: 'offset',
+    label: 'Offset Pillar Challenge',
+    description: 'The pillars are uneven, forcing a longer rope line and smarter tension control.',
+    leftPillar: 62,
+    rightPillar: 228,
+    stumpX: 154,
+    plankY: 152,
+    platform: false,
+  },
+  {
+    id: 'river',
+    label: 'River Gap Scenario',
+    description: 'A narrow river crossing with a temporary platform on the far side and a deeper OOB centre.',
+    leftPillar: 72,
+    rightPillar: 218,
+    stumpX: 144,
+    plankY: 150,
+    platform: true,
+  }
+];
+
 // ════════════════════════════════════════════════════════
 //  GAME STATE
 // ════════════════════════════════════════════════════════
@@ -562,6 +596,10 @@ const VISUALS = {
 const State = {
   phaseIdx: 0,
   questionIdx: 0,
+  obstacleIndex: 0,
+  balliX: 120,
+  dragging: false,
+  dragHandlers: null,
   scores: { logic: 0, grit: 0, influence: 0 },
   speedBonus: 0,
   totalCorrect: 0,
@@ -586,10 +624,18 @@ const App = {
   // ── Kickoff ──
   startGame() {
     Object.assign(State, {
-      phaseIdx: 0, questionIdx: 0,
+      phaseIdx: 0,
+      questionIdx: 0,
+      obstacleIndex: Math.floor(Math.random() * OBSTACLE_SETUPS.length),
+      balliX: 120,
+      dragging: false,
+      dragHandlers: null,
       scores: { logic: 0, grit: 0, influence: 0 },
-      speedBonus: 0, totalCorrect: 0, totalQuestions: 0,
-      twistsCleared: 0, answered: false
+      speedBonus: 0,
+      totalCorrect: 0,
+      totalQuestions: 0,
+      twistsCleared: 0,
+      answered: false
     });
     this.show('briefing');
     this.loadPhase();
@@ -632,12 +678,142 @@ const App = {
   renderPhaseUI() {
     const phase = PHASES[State.phaseIdx];
     document.getElementById('phase-tag').textContent = phase.title;
-    document.getElementById('obstacle-visual').innerHTML = VISUALS[phase.visual] || '';
+    document.getElementById('obstacle-visual').innerHTML = this.getObstacleSceneMarkup(phase.visual);
     // Equipment chips
     const rack = document.getElementById('eq-items');
     rack.innerHTML = phase.equipment.map(e =>
       `<span class="eq-chip${e.id === 'redstump' ? ' oob' : ''}">${e.label}</span>`
     ).join('');
+    if (phase.visual !== 'recovery') {
+      this.attachDragHandlers();
+    }
+  },
+
+  getObstacleSceneMarkup(visual) {
+    const phase = PHASES[State.phaseIdx];
+    if (visual === 'setup' || visual === 'execution') {
+      const setup = OBSTACLE_SETUPS[State.obstacleIndex];
+      const balliX = State.balliX;
+      const loadX = balliX + 60;
+      const ropeRightStart = balliX + 120;
+      const stumpColor = setup.platform ? '#c0392b' : '#c0392b';
+      const platformMarkup = setup.platform ? `<rect x="200" y="150" width="60" height="10" fill="#3d2e10" opacity="0.85"/><text x="230" y="166" font-family="Space Mono,monospace" font-size="5" fill="#7a5520" text-anchor="middle">PLATFORM</text>` : '';
+
+      return `
+<div class="interactive-scene">
+  <div class="interactive-header">${setup.label}</div>
+  <div class="interactive-description">${setup.description}</div>
+  <svg viewBox="0 0 300 200" width="300" height="200" xmlns="http://www.w3.org/2000/svg" id="sim-svg">
+    <rect width="300" height="200" fill="#0d0f0b"/>
+    <text x="30" y="20" font-family="Space Mono,monospace" font-size="7" fill="#4a5424">START</text>
+    <text x="235" y="20" font-family="Space Mono,monospace" font-size="7" fill="#4a5424">END</text>
+    <rect x="0" y="140" width="80" height="60" fill="#1c2016" stroke="#3a4530" stroke-width="0.5"/>
+    <rect x="220" y="140" width="80" height="60" fill="#1c2016" stroke="#3a4530" stroke-width="0.5"/>
+    <rect x="80" y="140" width="140" height="60" fill="#2a2510" stroke="#4a4020" stroke-width="0.5"/>
+    <text x="150" y="178" font-family="Space Mono,monospace" font-size="6.5" fill="#6a5a20" text-anchor="middle">OUT OF BOUNDS</text>
+    <rect x="${setup.leftPillar}" y="120" width="10" height="24" fill="#1a4a70" stroke="#3a8fb5" stroke-width="1"/>
+    <rect x="${setup.rightPillar}" y="120" width="10" height="24" fill="#1a4a70" stroke="#3a8fb5" stroke-width="1"/>
+    <text x="${setup.leftPillar + 5}" y="116" font-family="Space Mono,monospace" font-size="5.5" fill="#3a8fb5" text-anchor="middle">PILLAR</text>
+    <text x="${setup.rightPillar + 5}" y="116" font-family="Space Mono,monospace" font-size="5.5" fill="#3a8fb5" text-anchor="middle">PILLAR</text>
+    <rect x="${setup.stumpX}" y="130" width="12" height="14" fill="#3a1010" stroke="${stumpColor}" stroke-width="1"/>
+    <rect x="${setup.stumpX}" y="130" width="12" height="4" fill="#c0392b"/>
+    <text x="${setup.stumpX + 6}" y="126" font-family="Space Mono,monospace" font-size="5" fill="#c0392b" text-anchor="middle">OOB</text>
+    ${platformMarkup}
+    <line id="rope-left" x1="10" y1="128" x2="${balliX}" y2="128" stroke="#d4922a" stroke-width="2" stroke-dasharray="4,2"/>
+    <line id="rope-right" x1="${ropeRightStart}" y1="128" x2="290" y2="128" stroke="#d4922a" stroke-width="2" stroke-dasharray="4,2"/>
+    <g id="balli-group" transform="translate(${balliX},0)">
+      <line x1="0" y1="128" x2="120" y2="128" stroke="#a3b85c" stroke-width="5" stroke-linecap="round"/>
+      <rect id="drag-handle" x="50" y="116" width="20" height="24" rx="4" fill="#7a8c3e" opacity="0.8" cursor="pointer"/>
+      <circle cx="60" cy="128" r="8" fill="#a3b85c"/>
+    </g>
+    <ellipse id="load-blob" cx="${loadX}" cy="122" rx="12" ry="9" fill="#1c2016" stroke="#a3b85c" stroke-width="1.5"/>
+    <text x="${loadX}" y="125" font-family="Space Mono,monospace" font-size="5" fill="#a3b85c" text-anchor="middle">LOAD</text>
+  </svg>
+  <div id="drag-feedback" class="drag-feedback">Drag the balli handle to test rope tension and keep the load clear of the red stump.</div>
+</div>`;
+    }
+
+    return VISUALS[visual] || '';
+  },
+
+  attachDragHandlers() {
+    const svg = document.getElementById('sim-svg');
+    const handle = document.getElementById('drag-handle');
+    const balliGroup = document.getElementById('balli-group');
+    const leftRope = document.getElementById('rope-left');
+    const rightRope = document.getElementById('rope-right');
+    const loadBlob = document.getElementById('load-blob');
+    const feedback = document.getElementById('drag-feedback');
+    if (!svg || !handle || !balliGroup || !leftRope || !rightRope || !loadBlob || !feedback) return;
+
+    const clampX = (x) => Math.max(80, Math.min(150, x));
+    const updateScene = (x) => {
+      const newX = clampX(x);
+      State.balliX = newX;
+      const ropeRightX = newX + 120;
+      balliGroup.setAttribute('transform', `translate(${newX},0)`);
+      leftRope.setAttribute('x2', `${newX}`);
+      rightRope.setAttribute('x1', `${ropeRightX}`);
+      loadBlob.setAttribute('cx', `${newX + 60}`);
+
+      const setup = OBSTACLE_SETUPS[State.obstacleIndex];
+      const balliCenter = newX + 60;
+      if (balliCenter > setup.stumpX - 22 && balliCenter < setup.stumpX + 22) {
+        feedback.textContent = 'Warning: the balli is close to the red stump. Keep the rope clear of the OOB marker.';
+        feedback.classList.add('drag-warning');
+      } else if (balliCenter < 105) {
+        feedback.textContent = 'The balli is too close to the start bank. Stretch the ropes evenly across the gap.';
+        feedback.classList.remove('drag-warning');
+      } else if (balliCenter > 175) {
+        feedback.textContent = 'The balli is too near the end bank. Adjust the rassi to keep the load centred.';
+        feedback.classList.remove('drag-warning');
+      } else {
+        feedback.textContent = 'Great — the balli is moving smoothly. Use the drag handle to feel how tension changes as you adjust position.';
+        feedback.classList.remove('drag-warning');
+      }
+    };
+
+    let pointerId = null;
+    const onDown = (event) => {
+      event.preventDefault();
+      pointerId = event.pointerId;
+      State.dragging = true;
+      svg.setPointerCapture(pointerId);
+    };
+
+    const onMove = (event) => {
+      if (!State.dragging || event.pointerId !== pointerId) return;
+      const point = svg.createSVGPoint();
+      point.x = event.clientX;
+      point.y = event.clientY;
+      const local = point.matrixTransform(svg.getScreenCTM().inverse());
+      updateScene(local.x - 60);
+    };
+
+    const onUp = (event) => {
+      if (event.pointerId !== pointerId) return;
+      State.dragging = false;
+      pointerId = null;
+      if (svg.releasePointerCapture) svg.releasePointerCapture(event.pointerId);
+      feedback.textContent = 'Drag the balli handle to test rope tension and keep the load clear of the red stump.';
+      feedback.classList.remove('drag-warning');
+    };
+
+    if (State.dragHandlers?.handleEl) {
+      State.dragHandlers.handleEl.removeEventListener('pointerdown', State.dragHandlers.onDown);
+    }
+    if (State.dragHandlers?.onMove) {
+      window.removeEventListener('pointermove', State.dragHandlers.onMove);
+      window.removeEventListener('pointerup', State.dragHandlers.onUp);
+      window.removeEventListener('pointercancel', State.dragHandlers.onUp);
+    }
+
+    handle.addEventListener('pointerdown', onDown);
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
+
+    State.dragHandlers = { handleEl: handle, onDown, onMove, onUp };
   },
 
   // ── Load question ──
