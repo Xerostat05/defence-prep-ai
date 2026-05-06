@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -16,6 +16,7 @@ const navLinks = [
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -47,6 +48,10 @@ const Navbar = () => {
     } else {
       navigate(path, { replace: false });
     }
+  };
+
+  const toggleProfileMenu = () => {
+    setProfileMenuOpen((prev) => !prev);
   };
 
   useEffect(() => {
@@ -83,15 +88,33 @@ const Navbar = () => {
             ))}
           </div>
 
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3 relative">
             {user ? (
               <>
-                <Button variant="ghost" className="text-primary-foreground/80 hover:text-gold hover:bg-gold/10" onClick={() => navigate("/dashboard")}>
-                  Dashboard
-                </Button>
-                <Button className="bg-gold text-accent-foreground hover:bg-gold-light font-semibold shadow-gold" onClick={() => { signOut(); }}>
-                  Log Out
-                </Button>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={toggleProfileMenu}
+                    className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-sm text-[#4c2e08] hover:border-gold hover:text-[#4c2e08] hover:bg-gold/10 transition-colors duration-200"
+                  >
+                    <User className="h-4 w-4" />
+                    Account
+                    <ChevronDown className={`h-4 w-4 transition-transform ${profileMenuOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {profileMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-border bg-background shadow-xl ring-1 ring-black/5 z-50">
+                      <button onClick={() => { navigate('/profile'); setProfileMenuOpen(false); }} className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-muted/50">Profile Settings</button>
+                      <button onClick={() => { navigate('/dashboard'); setProfileMenuOpen(false); }} className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-muted/50">Dashboard</button>
+                      <button onClick={() => { navigate('/study-planner'); setProfileMenuOpen(false); }} className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-muted/50">Study Planner</button>
+                      <button onClick={() => { navigate('/study-materials'); setProfileMenuOpen(false); }} className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-muted/50">Study Materials</button>
+                      <button onClick={() => { handleNav('/pgt-simulator/index.html'); setProfileMenuOpen(false); }} className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-muted/50">PGT Simulator</button>
+                      <div className="border-t border-border" />
+                      <button className="w-full text-left px-4 py-3 text-sm text-destructive hover:bg-muted/50" onClick={() => { signOut(); setProfileMenuOpen(false); }}>
+                        Log Out
+                      </button>
+                    </div>
+                  )}
+                </div>
               </>
             ) : (
               <>
@@ -133,6 +156,9 @@ const Navbar = () => {
               <div className="flex flex-col gap-2 pt-2 border-t border-gold/20">
                 {user ? (
                   <>
+                    <Button variant="ghost" className="text-primary-foreground/80 hover:text-gold hover:bg-gold/10 justify-start" onClick={() => { navigate("/profile"); setIsOpen(false); }}>
+                      Profile Settings
+                    </Button>
                     <Button variant="ghost" className="text-primary-foreground/80 hover:text-gold hover:bg-gold/10 justify-start" onClick={() => { navigate("/dashboard"); setIsOpen(false); }}>
                       Dashboard
                     </Button>

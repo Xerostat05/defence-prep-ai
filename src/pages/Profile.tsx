@@ -25,12 +25,21 @@ const Profile = () => {
   const [displayName, setDisplayName] = useState("");
   const [targetExam, setTargetExam] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [subscriptionPlan, setSubscriptionPlan] = useState("Free");
+  const [subscriptionStatus, setSubscriptionStatus] = useState("Active");
   const [saving, setSaving] = useState(false);
   const [fetching, setFetching] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) navigate("/auth");
   }, [user, loading, navigate]);
+
+  useEffect(() => {
+    const storedPlan = localStorage.getItem("olivewings_subscription_plan");
+    const storedStatus = localStorage.getItem("olivewings_subscription_status");
+    if (storedPlan) setSubscriptionPlan(storedPlan);
+    if (storedStatus) setSubscriptionStatus(storedStatus);
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -53,6 +62,8 @@ const Profile = () => {
   const handleSave = async () => {
     if (!user) return;
     setSaving(true);
+    localStorage.setItem("olivewings_subscription_plan", subscriptionPlan);
+    localStorage.setItem("olivewings_subscription_status", subscriptionStatus);
     const { error } = await supabase
       .from("profiles")
       .update({ display_name: displayName, target_exam: targetExam, avatar_url: avatarUrl })
@@ -80,6 +91,28 @@ const Profile = () => {
     reader.readAsDataURL(file);
   };
 
+  const handleUpgradeSubscription = () => {
+    setSubscriptionPlan("Premium");
+    setSubscriptionStatus("Active");
+    localStorage.setItem("olivewings_subscription_plan", "Premium");
+    localStorage.setItem("olivewings_subscription_status", "Active");
+    toast.success("Subscription upgraded to Premium.");
+  };
+
+  const handleCancelSubscription = () => {
+    setSubscriptionPlan("Free");
+    setSubscriptionStatus("Canceled");
+    localStorage.setItem("olivewings_subscription_plan", "Free");
+    localStorage.setItem("olivewings_subscription_status", "Canceled");
+    toast.success("Subscription cancelled. You can upgrade again anytime.");
+  };
+
+  const handleRenewSubscription = () => {
+    setSubscriptionStatus("Active");
+    localStorage.setItem("olivewings_subscription_status", "Active");
+    toast.success("Subscription renewed successfully.");
+  };
+
   if (loading || fetching) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -99,6 +132,34 @@ const Profile = () => {
 
         <div className="bg-card rounded-2xl border border-border p-8 shadow-card">
           <h1 className="font-display text-2xl font-bold text-foreground mb-6">Profile Settings</h1>
+
+          <div className="rounded-3xl border border-gold/20 bg-gold/5 p-6 mb-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-foreground">Subscription Plan</p>
+                <p className="text-2xl font-bold text-gold">{subscriptionPlan}</p>
+                <p className="text-sm text-muted-foreground">Status: {subscriptionStatus}</p>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {subscriptionPlan === "Free" ? (
+                  <Button onClick={handleUpgradeSubscription} className="bg-gold text-accent-foreground hover:bg-gold-light font-semibold">
+                    Upgrade to Premium
+                  </Button>
+                ) : subscriptionStatus === "Canceled" ? (
+                  <Button onClick={handleRenewSubscription} className="bg-gold text-accent-foreground hover:bg-gold-light font-semibold">
+                    Renew Subscription
+                  </Button>
+                ) : (
+                  <Button variant="outline" onClick={handleCancelSubscription} className="text-destructive border-destructive/30 hover:bg-destructive/10">
+                    Cancel Subscription
+                  </Button>
+                )}
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground mt-4">
+              Premium users get unlimited mock tests, priority AI support, and exclusive exam note bundles.
+            </p>
+          </div>
 
           {/* Avatar */}
           <div className="flex items-center gap-6 mb-8">

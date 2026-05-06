@@ -70,7 +70,7 @@ const HeroSection = () => {
               size="lg"
               variant="outline"
               onClick={() => document.getElementById("ai-features")?.scrollIntoView({ behavior: "smooth" })}
-              className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 text-base px-8 py-6"
+              className="border-white/90 text-[#4c2e08] bg-white hover:!bg-[#F8E0AB] hover:!text-[#3d2703] text-base px-8 py-6 transition-all duration-300 hover:shadow-lg hover:border-[#4c2e08] hover:scale-[1.01]"
             >
               Explore Features
             </Button>

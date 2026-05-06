@@ -12,6 +12,7 @@ type Material = {
   description: string;
   url: string;
   source: string;
+  internal?: boolean;
 };
 
 type Category = {
@@ -19,38 +20,69 @@ type Category = {
   title: string;
   color: string;
   icon: LucideIcon;
+  subjects: string[];
   materials: Material[];
 };
 
 const categories: Category[] = [
   {
     id: 'nda',
-    title: 'NDA & Defence Notes',
+    title: 'NDA Exam Resources',
     color: 'bg-amber-100',
     icon: BookOpen,
+    subjects: ['Mathematics', 'General Ability', 'SSB'],
     materials: [
-      { title: 'Defence Strategy Overview', description: 'Key concepts for NDA and military strategy.', url: 'https://example.com/defence-strategy', source: 'Trusted Notes' },
-      { title: 'Service Ethics Handbook', description: 'Officer values, discipline, and leadership ethics.', url: 'https://example.com/service-ethics', source: 'Official Guide' }
+      { title: 'NDA Syllabus Guide', description: 'Complete NDA preparation path for Maths, GAT and SSB tasks.', url: '/exam/nda', source: 'Olive Wings', internal: true },
+      { title: 'Defence General Knowledge', description: 'Core current affairs and defence GK notes for NDA aspirants.', url: 'https://www.drishtiias.com', source: 'Drishti IAS' },
+      { title: 'SSB Task Practices', description: 'Focused OIR, TAT, WAT and SRT preparation resources.', url: '/exam/ssb-interview', source: 'Olive Wings', internal: true }
     ]
   },
   {
-    id: 'general-ability',
-    title: 'General Ability',
+    id: 'cds',
+    title: 'CDS Exam Resources',
     color: 'bg-sky-100',
     icon: Shield,
+    subjects: ['English', 'General Knowledge', 'Elementary Mathematics'],
     materials: [
-      { title: 'Quantitative Aptitude Practice', description: 'Math shortcuts and practice problems.', url: 'https://example.com/quant-practice', source: 'Prep Portal' },
-      { title: 'Reasoning Patterns', description: 'Critical thinking and logic question bank.', url: 'https://example.com/reasoning-patterns', source: 'AI Notes' }
+      { title: 'CDS Subject Notes', description: 'English, GK and Maths notes tailored for CDS.', url: '/exam/cds', source: 'Olive Wings', internal: true },
+      { title: 'Polity & Defence Basics', description: 'Must-read handouts for CDS General Knowledge.', url: 'https://www.civilsdaily.com', source: 'Civils Daily' },
+      { title: 'English Grammar Drill', description: 'High-yield CDS verbal ability exercises.', url: 'https://www.grammarbank.com', source: 'Grammar Bank' }
     ]
   },
   {
-    id: 'interview',
-    title: 'Interview & Personality',
+    id: 'afcat',
+    title: 'AFCAT Exam Resources',
     color: 'bg-violet-100',
     icon: Users,
+    subjects: ['GA', 'Verbal Ability', 'Numerical Ability', 'Reasoning'],
     materials: [
-      { title: 'PI Question Sets', description: 'Common PI questions and scoring pointers.', url: 'https://example.com/pi-questions', source: 'Expert Panel' },
-      { title: 'Group Discussion Tips', description: 'How to perform effectively in GD rounds.', url: 'https://example.com/gd-tips', source: 'Exam Guru' }
+      { title: 'AFCAT Exam Guide', description: 'AFCAT-specific focus notes for GA, English and reasoning.', url: '/exam/afcat', source: 'Olive Wings', internal: true },
+      { title: 'Numerical Practice Bank', description: 'Targeted quantitative practice for AFCAT.', url: 'https://www.arihantbooks.com', source: 'Arihant' },
+      { title: 'Reasoning Question Sets', description: 'Verbal and non-verbal reasoning drills for AFCAT.', url: 'https://www.bankersadda.com', source: 'Bankers Adda' }
+    ]
+  },
+  {
+    id: 'inet',
+    title: 'INET Exam Resources',
+    color: 'bg-emerald-100',
+    icon: Users,
+    subjects: ['English', 'GK', 'General Science', 'Reasoning'],
+    materials: [
+      { title: 'INET Syllabus Notes', description: 'Focused notes for English, Science and Reasoning papers.', url: '/exam/inet', source: 'Olive Wings', internal: true },
+      { title: 'Naval Current Affairs', description: 'Latest defence & naval affairs content for INET.', url: 'https://www.indiannavy.nic.in', source: 'Indian Navy' },
+      { title: 'Science Revision Guide', description: 'General Science concepts with exam-level examples.', url: 'https://www.khanacademy.org', source: 'Khan Academy' }
+    ]
+  },
+  {
+    id: 'capf',
+    title: 'CAPF Exam Resources',
+    color: 'bg-amber-100',
+    icon: BookOpen,
+    subjects: ['General Studies', 'General Ability', 'Essay'],
+    materials: [
+      { title: 'CAPF Preparation Guide', description: 'General Studies, aptitude, and essay resources.', url: '/exam/capf', source: 'Olive Wings', internal: true },
+      { title: 'Essay Writing Tips', description: 'Practice structure and precision for CAPF descriptive paper.', url: 'https://www.writingbee.com', source: 'Writing Bee' },
+      { title: 'Internal Security Notes', description: 'Core concepts for CAPF internal security and disaster management.', url: 'https://www.indiabix.com', source: 'IndiaBix' }
     ]
   }
 ];
@@ -65,7 +97,11 @@ const StudyMaterials = () => {
     if (!loading && !user) navigate("/auth");
   }, [user, loading, navigate]);
 
-  const handleOpenLink = (url: string) => {
+  const handleOpenLink = (url: string, internal?: boolean) => {
+    if (internal) {
+      navigate(url);
+      return;
+    }
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
@@ -146,6 +182,13 @@ const StudyMaterials = () => {
                         <div className="text-left">
                         <h2 className="font-display text-lg font-semibold text-foreground">{cat.title}</h2>
                         <p className="text-xs text-muted-foreground">{cat.materials.length} resources</p>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {cat.subjects.map((subject) => (
+                            <span key={subject} className="text-[10px] uppercase tracking-wider font-black text-slate-500 bg-muted/80 px-2 py-1 rounded-full">
+                              {subject}
+                            </span>
+                          ))}
+                        </div>
                         </div>
                     </div>
                     {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
@@ -176,7 +219,7 @@ const StudyMaterials = () => {
                         {cat.materials.map((mat, i) => (
                           <div
                             key={i}
-                            onClick={() => handleOpenLink(mat.url)}
+                            onClick={() => handleOpenLink(mat.url, mat.internal)}
                             className="group cursor-pointer bg-card rounded-lg border border-border p-4 hover:border-gold transition-all"
                           >
                             <div className="flex items-start justify-between gap-2 mb-2">
@@ -184,7 +227,12 @@ const StudyMaterials = () => {
                               <ExternalLink className="h-3 w-3 text-muted-foreground group-hover:text-gold" />
                             </div>
                             <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{mat.description}</p>
-                            <span className="text-[10px] uppercase font-black text-slate-500">Source: {mat.source}</span>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[10px] uppercase font-black text-slate-500">Source: {mat.source}</span>
+                              {mat.internal && (
+                                <span className="text-[10px] font-semibold text-gold uppercase tracking-wide">In-app guide</span>
+                              )}
+                            </div>
                           </div>
                         ))}
                       </div>
