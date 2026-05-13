@@ -16,6 +16,7 @@ interface HolisticData {
   tat_scores: Array<{ date: string; score: number; olq_score: number }>;
   srt_scores: Array<{ date: string; score: number; leadership_score: number }>;
   mock_test_scores: Array<{ date: string; score: number; subject: string }>;
+  pi_scores: Array<{ date: string; score: number; feedback?: string }>;
   personality_traits: {
     extraversion: number;
     agreeableness: number;
@@ -47,11 +48,12 @@ const HolisticAnalysis = () => {
       setLoading(true);
 
       // Fetch data from various tables
-      const [practiceSessions, mockTests, personalityData, performanceData] = await Promise.all([
+      const [practiceSessions, mockTests, personalityData, performanceData, piAnalysis] = await Promise.all([
         supabase.from('practice_sessions').select('*').eq('user_id', user?.id).order('created_at', { ascending: false }),
         supabase.from('test_attempts').select('*').eq('user_id', user?.id).order('created_at', { ascending: false }),
         supabase.from('personality_profiles').select('*').eq('user_id', user?.id).order('created_at', { ascending: false }).limit(1),
-        supabase.from('performance_predictions').select('*').eq('user_id', user?.id).order('created_at', { ascending: false }).limit(1)
+        supabase.from('performance_predictions').select('*').eq('user_id', user?.id).order('created_at', { ascending: false }).limit(1),
+        supabase.from('ai_analysis_results').select('*').eq('user_id', user?.id).eq('analysis_type', 'VERBAL').order('created_at', { ascending: false }).limit(20)
       ]);
 
       // Process WAT scores
@@ -97,8 +99,20 @@ const HolisticAnalysis = () => {
         openness: 0
       };
 
-      // Calculate overall readiness
-      const overallReadiness = performanceData.data?.[0]?.predicted_score || 0;
+      const piScores = piAnalysis.data?.map((item: any) => ({
+        date: new Date(item.created_at).toLocaleDateString(),
+        score: item.overall_score || 0,
+        feedback: item.primary_finding || ''
+      })) || [];
+
+      const piAvg = piScores.length
+        ? piScores.reduce((sum, item) => sum + item.score, 0) / piScores.length
+        : 0;
+
+      const predictedScore = performanceData.data?.[0]?.predicted_level_1month || performanceData.data?.[0]?.current_level || performanceData.data?.[0]?.predicted_score || 0;
+      const overallReadiness = Math.round(
+        ((predictedScore || 0) + (piAvg || 0)) / (predictedScore && piAvg ? 2 : 1)
+      );
 
       // Generate recommendations based on data
       const recommendations = generateRecommendations(watScores, tatScores, srtScores, mockTestScores, personalityTraits);
@@ -108,6 +122,7 @@ const HolisticAnalysis = () => {
         tat_scores: tatScores,
         srt_scores: srtScores,
         mock_test_scores: mockTestScores,
+        pi_scores: piScores,
         personality_traits: personalityTraits,
         overall_readiness: overallReadiness,
         recommendations
@@ -179,6 +194,18 @@ const HolisticAnalysis = () => {
         priority: 'medium' as const,
         description: 'Work on discipline and organization. Develop better study habits and time management.'
       });
+    }
+
+    // PI rapid-fire recommendations
+    if (pi.length > 0) {
+      const avgPi = pi.reduce((sum, p) => sum + p.score, 0) / pi.length;
+      if (avgPi < 70) {
+        recommendations.push({
+          area: 'Personal Interview',
+          priority: 'high' as const,
+          description: 'Improve your verbal delivery and quick-response confidence. Practice more voice-based PI questions to reduce hesitation.'
+        });
+      }
     }
 
     return recommendations;
@@ -267,6 +294,30 @@ const HolisticAnalysis = () => {
           </Card>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <Card className="bg-gradient-to-br from-slate-900/40 to-slate-800/40 border-white/5 rounded-[2rem] overflow-hidden backdrop-blur-sm">
+              <CardHeader className="border-b border-white/5">
+                <CardTitle className="text-xl text-white flex items-center gap-2">
+                  <ShieldCheck className="h-5 w-5 text-[#d4af37]" />
+                  Personal Interview Readiness
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  <p className="text-slate-300">Rapid-fire PI score integration helps track verbal confidence and response speed.</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="rounded-3xl bg-slate-950/60 p-4 border border-white/10">
+                      <p className="text-sm text-slate-400">Latest PI score</p>
+                      <p className="mt-3 text-3xl font-semibold text-white">{data.pi_scores[0]?.score ?? 'N/A'}</p>
+                    </div>
+                    <div className="rounded-3xl bg-slate-950/60 p-4 border border-white/10">
+                      <p className="text-sm text-slate-400">Avg. PI score</p>
+                      <p className="mt-3 text-3xl font-semibold text-[#d4af37]">{data.pi_scores.length ? Math.round(data.pi_scores.reduce((sum, item) => sum + item.score, 0) / data.pi_scores.length) : 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* SSB Test Performance Trends */}
             <Card className="bg-gradient-to-br from-slate-900/40 to-slate-800/40 border-white/5 rounded-[2rem] overflow-hidden backdrop-blur-sm">
               <CardHeader className="border-b border-white/5">

@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { buildBackendUrl } from '@/lib/api';
 import { Button } from "@/components/ui/button";
@@ -13,15 +12,25 @@ import { BookOpen, Calendar, ArrowLeft, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 
-// UPDATED TYPES: Matching your Python backend keys
-type ScheduleItem = { day: string; topics: string[]; hours: number; week?: number; priority?: string };
-type Plan = { 
-  id: string; 
-  plan_title: string; // Changed from title
-  exam: string;       // Changed from exam_type
-  schedule: ScheduleItem[]; // Changed from plan_data
+type ScheduleItem = {
+  week: number;
+  day: string;
+  date: string;
+  topics: string[];
+  duration_hours: number;
+  priority: string;
+  notes?: string;
+};
+
+type Plan = {
+  id: string;
+  user_id: string;
+  title: string;
+  exam_type: string;
+  plan_data: ScheduleItem[];
+  start_date: string;
+  end_date: string | null;
   created_at: string;
-  date?: string;
 };
 
 const StudyPlanner = () => {
@@ -44,49 +53,92 @@ const StudyPlanner = () => {
   }, [user]);
 
   const fetchPlans = async () => {
-    const { data } = await supabase
+    if (!user) return;
+
+    const { data, error } = await supabase
       .from("study_plans")
       .select("*")
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false });
-    if (data) setPlans(data as unknown as Plan[]);
-  };
 
-  const generatePlan = async () => {
-  setIsGenerating(true);
-  
-  const payload = {
-    exam_type: examType,
-    exam_date: examDate || null,
-    weak_areas: weakAreas ? weakAreas.split(",").map((s) => s.trim()) : [],
-    hours_per_day: parseInt(hoursPerDay, 10) || 4,
-  };
-
-  try {
-    const response = await fetch(buildBackendUrl('/generate-study-plan'), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await response.json();
-    
-    // If it still fails, this will show you exactly WHY Python is rejecting it
-    if (!response.ok) {
-      console.error("FastAPI Validation Error:", data);
-      toast.error("Format error - see console");
+    if (error) {
+      console.error("Failed to fetch plans", error);
       return;
     }
 
-    if (data.status === "success") {
-      setPlans((prevPlans) => [...prevPlans, data]);
-      toast.success("Plan generated!");
+    setPlans(data as Plan[]);
+  };
+
+  const generatePlan = async () => {
+    if (!user) {
+      toast.error("Please sign in to generate a study plan.");
+      return;
     }
-  } catch (error) {
-    console.error("Fetch error:", error);
-  } finally {
-    setIsGenerating(false);
-  }
-};
+
+    setIsGenerating(true);
+
+    const payload = {
+      exam_type: examType,
+      exam_date: examDate || null,
+      weak_areas: weakAreas ? weakAreas.split(",").map((s) => s.trim()) : [],
+      hours_per_day: parseInt(hoursPerDay, 10) || 4,
+    };
+
+    try {
+      const response = await fetch(buildBackendUrl("/generate-study-plan"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        console.error("Study plan generation failed:", data);
+        toast.error("Unable to generate study plan. See console for details.");
+        return;
+      }
+
+      const planData = data.plan ?? data.schedule ?? [];
+      if (!Array.isArray(planData) || planData.length === 0) {
+        toast.error("AI returned an invalid plan. Try again with more detail.");
+        return;
+      }
+
+      const planTitle = data.title || data.plan_title || `${examType || "Defence"} Study Plan`;
+      const startDate = data.start_date || new Date().toISOString().slice(0, 10);
+      const endDate = data.end_date || (examDate || null);
+
+      const { data: inserted, error } = await supabase
+        .from("study_plans")
+        .insert([
+          {
+            user_id: user.id,
+            title: planTitle,
+            exam_type: examType,
+            plan_data: planData,
+            start_date: startDate,
+            end_date: endDate,
+          },
+        ])
+        .select("*")
+        .single();
+
+      if (error) {
+        console.error("Saving study plan failed:", error);
+        toast.error("Unable to save plan. Please try again.");
+        return;
+      }
+
+      setPlans((prevPlans) => [inserted as Plan, ...prevPlans]);
+      setActivePlan(inserted as Plan);
+      toast.success("Your study plan is ready.");
+    } catch (error) {
+      console.error("Fetch error:", error);
+      toast.error("An error occurred while generating the study plan.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const deletePlan = async (id: string) => {
     await supabase.from("study_plans").delete().eq("id", id);
@@ -150,18 +202,17 @@ const StudyPlanner = () => {
             {activePlan ? (
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  {/* FIX 3: Using plan_title instead of title */}
-                  <h2 className="font-display text-xl font-bold text-foreground">{activePlan.plan_title}</h2>
+                  <h2 className="font-display text-xl font-bold text-foreground">{activePlan.title}</h2>
                   <Button variant="ghost" size="sm" onClick={() => setActivePlan(null)}>← Back to Plans</Button>
                 </div>
                 <div className="grid gap-3">
-                  {/* FIX 3: Mapping through 'schedule' instead of 'plan_data' */}
-                  {(activePlan.schedule || []).map((item, i) => (
-                    <Card key={i} className="border-border">
+                  {(activePlan.plan_data || []).map((item, i) => (
+                    <Card key={`${item.date}-${i}`} className="border-border">
                       <CardContent className="p-4 flex items-start gap-4">
-                        <div className="text-center min-w-[60px]">
-                          <div className="text-xs text-muted-foreground">Day</div>
-                          <div className="font-display font-bold text-foreground text-sm">{item.day}</div>
+                        <div className="text-center min-w-[90px]">
+                          <div className="text-xs text-muted-foreground">{item.day}</div>
+                          <div className="font-display font-bold text-foreground text-sm">{item.date}</div>
+                          <div className="text-xs text-muted-foreground">Week {item.week}</div>
                         </div>
                         <div className="flex-1">
                           <div className="flex flex-wrap gap-1.5 mb-2">
@@ -169,12 +220,13 @@ const StudyPlanner = () => {
                               <span key={j} className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{t}</span>
                             ))}
                           </div>
-                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                            <span>{item.hours}h per day</span>
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                            <span>{item.duration_hours}h</span>
                             {item.priority && (
-                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${priorityColor(item.priority)}`}>{item.priority}</span>
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${priorityColor(item.priority)}`}>{item.priority}</span>
                             )}
                           </div>
+                          {item.notes && <p className="mt-2 text-sm text-muted-foreground">{item.notes}</p>}
                         </div>
                       </CardContent>
                     </Card>
@@ -195,11 +247,9 @@ const StudyPlanner = () => {
                       <Card key={plan.id} className="cursor-pointer hover:shadow-card-hover transition-shadow" onClick={() => setActivePlan(plan)}>
                         <CardContent className="p-4 flex items-center justify-between">
                           <div>
-                            {/* FIX 3: Use plan_title */}
-                            <h3 className="font-display font-bold text-foreground">{plan.plan_title}</h3>
-                            {/* FIX 2: Safe date formatting */}
+                            <h3 className="font-display font-bold text-foreground">{plan.title}</h3>
                             <p className="text-xs text-muted-foreground">
-                                {plan.exam} • {plan.created_at ? new Date(plan.created_at).toLocaleDateString() : "New Plan"}
+                                {plan.exam_type} • {plan.created_at ? new Date(plan.created_at).toLocaleDateString() : "New Plan"}
                             </p>
                           </div>
                           <div className="flex items-center gap-2">

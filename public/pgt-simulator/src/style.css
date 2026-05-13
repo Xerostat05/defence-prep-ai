@@ -71,6 +71,7 @@ html, body {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--olive-lt);
+  text-decoration: none;
 }
 .brand-icon { font-size: 1.3rem; }
 .nav-tag {

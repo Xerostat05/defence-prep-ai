@@ -6,11 +6,88 @@ from textblob import TextBlob
 import uvicorn
 from typing import List, Optional
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import random
 from fastapi.staticfiles import StaticFiles
+import sqlite3
+import json
+from contextlib import contextmanager
 # --- 1. CONFIGURATION & MODELS ---
+# Database Setup
+DB_FILE = "ssb_performance.db"
+
+def init_db():
+    """Initialize SQLite database with performance tables"""
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS performance_records (
+            id TEXT PRIMARY KEY,
+            user_id TEXT,
+            session_type TEXT,
+            score REAL,
+            details TEXT,
+            timestamp TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    conn.commit()
+    conn.close()
+
+@contextmanager
+def get_db():
+    """Context manager for database connections"""
+    conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
+    try:
+        yield conn
+    finally:
+        conn.close()
+
+def save_performance_record(user_id: str, session_type: str, score: float, details: dict, timestamp: str):
+    """Save a performance record to the database"""
+    record_id = str(uuid.uuid4())
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO performance_records (id, user_id, session_type, score, details, timestamp)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (record_id, user_id, session_type, score, json.dumps(details), timestamp))
+        conn.commit()
+    return record_id
+
+def get_performance_records(user_id: Optional[str] = None, session_type: Optional[str] = None):
+    """Retrieve performance records from the database"""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        query = "SELECT * FROM performance_records WHERE 1=1"
+        params = []
+        
+        if user_id:
+            query += " AND user_id = ?"
+            params.append(user_id)
+        if session_type:
+            query += " AND session_type = ?"
+            params.append(session_type)
+        
+        query += " ORDER BY timestamp DESC"
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+    
+    records = []
+    for row in rows:
+        record = dict(row)
+        if record['details']:
+            record['details'] = json.loads(record['details'])
+        records.append(record)
+    return records
+
+# Initialize database on startup
+init_db()
+
 try:
     model = joblib.load("olq_classifier.pkl")
     vectorizer = joblib.load("tfidf_vectorizer.pkl")
@@ -79,6 +156,9 @@ async def analyze_ssb(request: EvaluationRequest):
         },
         "timestamp": datetime.now().isoformat()
     }
+    save_performance_record(analysis_record["user_id"], analysis_record["session_type"], 
+                           analysis_record["score"], analysis_record["details"], 
+                           analysis_record["timestamp"])
     user_performance_vault.append(analysis_record)
 
     return {
@@ -105,54 +185,111 @@ async def generate_flashcards(request: EvaluationRequest):
 # --- 5. STUDY PLAN ENDPOINT (Refined for AI Logic) ---
 @app.post("/generate-study-plan")
 async def generatePlan(request: StudyPlanRequest):
-    # This dictionary acts as the "Knowledge Base" for the AI logic
     test_data = {
         "NDA": {
             "focus": "Mathematics & GAT",
-            "topics": ["Trigonometry & Algebra", "English Vocabulary", "Physics/Chemistry"]
+            "topics": ["Trigonometry & Algebra", "English Vocabulary", "Physics/Chemistry", "General Studies"]
         },
         "CDS": {
             "focus": "Advanced GS & Elementary Maths",
-            "topics": ["Indian Polity & History", "English Grammar", "Arithmetic"]
-        },  
+            "topics": ["Indian Polity & History", "English Grammar", "Arithmetic", "Current Affairs"]
+        },
         "SSB": {
             "focus": "Psychology & OLQs",
-            "topics": ["TAT/WAT/SRT Practice", "Current Affairs", "GTO Visualization"]
+            "topics": ["TAT/WAT/SRT Practice", "Current Affairs", "GTO Visualization", "Leadership Reflection"]
         },
         "AFCAT": {
             "focus": "Numerical Ability & Reasoning",
-            "topics": ["Verbal Ability", "Spatial Awareness", "Military Aptitude"]
+            "topics": ["Verbal Ability", "Spatial Awareness", "Military Aptitude", "English Comprehension"]
+        },
+        "CAPF": {
+            "focus": "General Studies & Physical Prep",
+            "topics": ["Polity & Law", "History", "Quantitative Aptitude", "Physical Fitness"]
+        },
+        "INET": {
+            "focus": "Service Knowledge & Mental Agility",
+            "topics": ["Service Rules", "Essay Writing", "Current Affairs", "Logical Reasoning"]
         }
     }
 
     selected = test_data.get(request.exam_type, {
         "focus": "General Defence Prep",
-        "topics": ["Syllabus Overview", "Previous Year Papers", "General Awareness"]
+        "topics": ["Syllabus Overview", "Previous Year Papers", "General Awareness", "Study Strategy"]
     })
+    weak_areas = [area.strip() for area in request.weak_areas if area and area.strip()]
+    weak_areas_str = ", ".join(weak_areas)
 
-    # DYNAMIC LOGIC: If user typed a weak area, it overrides the standard focus
-    # Join the list of weak areas into a single string for the UI
-    weak_areas_str = ", ".join(request.weak_areas) if isinstance(request.weak_areas, list) else request.weak_areas
+    start_date = datetime.now().date()
+    if request.exam_date:
+        try:
+            exam_target = datetime.fromisoformat(request.exam_date).date()
+            days_left = max((exam_target - start_date).days, 7)
+        except Exception:
+            exam_target = None
+            days_left = 28
+    else:
+        exam_target = None
+        days_left = 28
 
-    primary_task = f"Mastery Session: {weak_areas_str}" if weak_areas_str else f"Core Focus: {selected['focus']}"
+    if days_left < 28:
+        days_left = max(days_left, 14)
+    weeks = min(max((days_left + 6) // 7, 4), 8)
+    total_days = weeks * 7
+
+    plan_days = []
+    core_topics = selected["topics"][:]
+    if weak_areas:
+        for weak in weak_areas:
+            if weak not in core_topics:
+                core_topics.insert(0, f"Weak Area Focus: {weak}")
+
+    for day_index in range(total_days):
+        current_date = start_date + timedelta(days=day_index)
+        weekday = current_date.strftime("%A")
+        week_number = (day_index // 7) + 1
+        topic_idx = day_index % len(core_topics)
+        base_topic = core_topics[topic_idx]
+        secondary_topic = core_topics[(topic_idx + 1) % len(core_topics)]
+
+        if weekday in ["Saturday", "Sunday"]:
+            session_topics = ["Weekly review & practice test", f"Revisit: {base_topic}"]
+            priority = "high" if weak_areas else "medium"
+            notes = "Use weekend days for consolidation, self-assessment, and focused revision."
+        else:
+            session_topics = [base_topic, secondary_topic]
+            priority = "high" if any(weak.lower() in base_topic.lower() for weak in weak_areas) else "medium"
+            notes = "Keep the session active with practice questions and revision notes."
+
+        if week_number == weeks and weekday in ["Friday", "Saturday", "Sunday"]:
+            session_topics = ["Final revision", "Mock exam simulation", "Exam readiness checklist"]
+            priority = "high"
+            notes = "Wrap up the month with focused revision and stress-management practice."
+
+        plan_days.append({
+            "week": week_number,
+            "day": weekday,
+            "date": current_date.isoformat(),
+            "topics": session_topics,
+            "duration_hours": request.hours_per_day,
+            "priority": priority,
+            "notes": notes
+        })
+
+    plan_title = f"{request.exam_type} {weak_areas_str + ' ' if weak_areas_str else ''}Roadmap {start_date.strftime('%b %d')}"
     return {
-        "id": str(uuid.uuid4()),
         "status": "success",
-        "plan_title": f"{request.exam_type} Personal Fast-Track",
-        "exam": request.exam_type,
-        "date": request.exam_date,
-        "schedule": [
-            {
-                "day": "Monday", 
-                "topics": [primary_task, selected['topics'][0]], 
-                "hours": request.hours_per_day
-            },
-            {
-                "day": "Tuesday", 
-                "topics": [selected['topics'][1], "Psychological Conditioning"], 
-                "hours": request.hours_per_day
-            }
-        ]
+        "title": plan_title,
+        "exam_type": request.exam_type,
+        "start_date": start_date.isoformat(),
+        "end_date": exam_target.isoformat() if exam_target else (start_date + timedelta(days=total_days - 1)).isoformat(),
+        "plan": plan_days,
+        "summary": {
+            "weeks": weeks,
+            "total_days": total_days,
+            "hours_per_day": request.hours_per_day,
+            "weak_areas": weak_areas,
+            "focus": selected["focus"]
+        }
     }
     
 
@@ -288,7 +425,7 @@ async def analyze_tat(data: TATRequest):
     }
 
     # FEATURE: Save to Performance Analytics Vault
-    user_performance_vault.append({
+    performance_record = {
         "user_id": data.user_id,
         "session_type": "TAT",
         "score": analysis_results["sentiment_score"] * 100,
@@ -298,33 +435,76 @@ async def analyze_tat(data: TATRequest):
             "feedback": analysis_results["feedback"]
         },
         "timestamp": analysis_results["timestamp"]
-    })
+    }
+    save_performance_record(performance_record["user_id"], performance_record["session_type"],
+                           performance_record["score"], performance_record["details"],
+                           performance_record["timestamp"])
+    user_performance_vault.append(performance_record)
 
     return analysis_results
 
 @app.get("/performance-analytics")
 async def get_analytics(user_id: Optional[str] = None):
-    if user_id:
-        return [record for record in user_performance_vault if record.get("user_id") == user_id]
-    return user_performance_vault
+    records = get_performance_records(user_id=user_id)
+    if not records:
+        records = [record for record in user_performance_vault if not user_id or record.get("user_id") == user_id]
+    return records
 
 @app.get("/get-comprehensive-analysis")
 async def get_comprehensive_analysis(user_id: Optional[str] = None, exam_type: Optional[str] = None):
-    records = [
-        record for record in user_performance_vault
-        if (not user_id or record.get("user_id") == user_id)
-        and (not exam_type or record.get("session_type") == exam_type)
-    ]
+    ssb_types = ["WAT", "SRT", "TAT", "OIR", "PI", "GD"]
+    records = []
+
+    if exam_type == "SSB":
+        records = get_performance_records(user_id=user_id)
+        records = [record for record in records if record.get("session_type") in ssb_types]
+    else:
+        records = get_performance_records(user_id=user_id, session_type=exam_type)
+
+    if not records:
+        if exam_type == "SSB":
+            records = [
+                record for record in user_performance_vault
+                if (not user_id or record.get("user_id") == user_id)
+                and record.get("session_type") in ssb_types
+            ]
+        else:
+            records = [
+                record for record in user_performance_vault
+                if (not user_id or record.get("user_id") == user_id)
+                and (not exam_type or record.get("session_type") == exam_type)
+            ]
+
     scores = [record.get("score", 0) for record in records if record.get("score") is not None]
+    
+    # Transform records to include frontend-expected fields
+    transformed_records = []
+    for record in records:
+        details = record.get("details") or {}
+        transformed = {
+            "created_at": record.get("timestamp", datetime.now().isoformat()),
+            "overall_score": record.get("score", 0) / 10,  # Scale down to 0-10
+            "sentiment_score": (record.get("score", 0) / 50) - 1,  # Convert back to -1 to 1 range
+            "spontaneity_score": record.get("score", 60),
+            "confidence_score": record.get("score", 60),
+            "olq_indicators": details.get("olqs", []) or details.get("primary_olq", []) or [],
+            "primary_finding": details.get("feedback", ""),
+            "detailed_analysis": details.get("feedback", ""),
+        }
+        transformed_records.append(transformed)
+    
     metrics = {
         "total_attempts": len(records),
         "average_score": round(sum(scores) / len(scores), 2) if scores else 0,
         "best_score": round(max(scores), 2) if scores else 0,
+        "total_practice_sessions": len(records),
+        "improvement_rate": 0,
         "weak_areas": list({record.get("details", {}).get("weak_area") for record in records if record.get("details", {}).get("weak_area")})
     }
+    
     return {
         "metrics": [metrics],
-        "analyses": records,
+        "analyses": transformed_records,
         "recommendations": []
     }
 
@@ -333,6 +513,8 @@ async def log_performance(entry: PerformanceLogRequest):
     if not entry.timestamp:
         entry.timestamp = datetime.now().isoformat()
     record = entry.dict()
+    save_performance_record(entry.user_id, entry.session_type, entry.score or 0, 
+                           entry.details, entry.timestamp)
     user_performance_vault.append(record)
     return {"status": "success", "record": record}
 
@@ -415,6 +597,9 @@ async def analyze_oir(data: OIRAnalysisRequest):
             "decisions": decisions
         }
     }
+    save_performance_record(data.user_id, "OIR", normalized,
+                           {"answers": data.answers, "analysis": analysis["analysis"]},
+                           analysis["timestamp"])
     user_performance_vault.append({
         "user_id": data.user_id,
         "session_type": "OIR",
@@ -616,6 +801,10 @@ async def analyze_pi(data: PIAnalysisRequest):
         "factors": factors,
         "recommendations": recommendations
     }
+    save_performance_record(data.user_id, "PI", score,
+                           {"question": data.question, "answer": data.answer, 
+                            "feedback": primary_feedback, "factors": factors},
+                           result["timestamp"])
     user_performance_vault.append({
         "user_id": data.user_id,
         "session_type": "PI",
@@ -630,8 +819,67 @@ async def analyze_pi(data: PIAnalysisRequest):
 async def root():
     return {"message": "SSB Psych Engine is Online"}
 
+@app.get("/user-test-history")
+async def get_user_test_history(user_id: str, session_type: Optional[str] = None):
+    """Get all test history for a specific user, optionally filtered by session type"""
+    records = get_performance_records(user_id=user_id, session_type=session_type)
+    return {
+        "status": "success",
+        "user_id": user_id,
+        "session_type": session_type,
+        "records": records,
+        "total_count": len(records)
+    }
+
+@app.get("/user-performance-summary")
+async def get_user_performance_summary(user_id: str):
+    """Get performance summary statistics for a user"""
+    records = get_performance_records(user_id=user_id)
+    
+    if not records:
+        return {
+            "status": "success",
+            "user_id": user_id,
+            "total_sessions": 0,
+            "sessions_by_type": {},
+            "average_scores": {},
+            "best_scores": {},
+            "recent_sessions": []
+        }
+    
+    sessions_by_type = {}
+    scores_by_type = {}
+    best_scores_by_type = {}
+    
+    for record in records:
+        session_type = record.get("session_type", "Unknown")
+        score = record.get("score", 0)
+        
+        if session_type not in sessions_by_type:
+            sessions_by_type[session_type] = 0
+            scores_by_type[session_type] = []
+            best_scores_by_type[session_type] = score
+        
+        sessions_by_type[session_type] += 1
+        scores_by_type[session_type].append(score)
+        best_scores_by_type[session_type] = max(best_scores_by_type[session_type], score)
+    
+    average_scores = {k: round(sum(v) / len(v), 2) for k, v in scores_by_type.items()}
+    
+    return {
+        "status": "success",
+        "user_id": user_id,
+        "total_sessions": len(records),
+        "sessions_by_type": sessions_by_type,
+        "average_scores": average_scores,
+        "best_scores": best_scores_by_type,
+        "recent_sessions": records[:5]
+    }
+
+
 # --- 6. SERVER STARTUP ---
 if __name__ == "__main__":
     # Change host to 127.0.0.1 to match your frontend fetch exactly
     # Enable reload for development so changes to this file take effect automatically.
-    uvicorn.run(app, host="127.0.0.1", port=8000, reload=True)
+    # Use import string format for reload to work properly
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

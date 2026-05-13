@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, X, Send, Bot, User, Sparkles, BookOpen, Target, BarChart3, Shield } from "lucide-react";
+import { MessageCircle, X, Send, Bot, User, Sparkles, BookOpen, Target, BarChart3, Shield, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 
 type Msg = { role: "user" | "assistant"; content: string };
@@ -18,6 +18,8 @@ const quickActions = [
 ];
 
 const ChatWidget = () => {
+  const location = useLocation();
+  const isFullPage = location.pathname === "/chat";
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([
     { role: "assistant", content: "Hi! I'm **OliveBot** 🫒 — your agentic AI mentor.\n\nI can:\n- 📚 **Create study plans** tailored to your exam\n- ❓ **Generate practice questions** on any topic\n- 📊 **Analyze your performance** and suggest improvements\n- 🎖️ **Coach you for SSB** (WAT/TAT/SRT/GD/PI)\n- 🎯 **Give daily recommendations**\n\nTry the quick actions below or ask me anything!" },
@@ -28,6 +30,12 @@ const ChatWidget = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (location.pathname === "/chat") {
+      setIsOpen(true);
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -118,7 +126,13 @@ const ChatWidget = () => {
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="fixed bottom-20 right-4 z-50 w-[380px] max-w-[calc(100vw-2rem)] h-[540px] max-h-[75vh] bg-card border border-border rounded-2xl shadow-card-hover flex flex-col overflow-hidden"
+            className={
+              `fixed z-50 bg-card border border-border shadow-card-hover flex flex-col overflow-hidden ${
+                isFullPage
+                  ? "inset-0 m-0 w-full h-full rounded-none"
+                  : "bottom-20 right-4 w-[380px] max-w-[calc(100vw-2rem)] h-[540px] max-h-[75vh] rounded-2xl"
+              }`
+            }
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-primary border-b border-border">
@@ -129,12 +143,22 @@ const ChatWidget = () => {
                 </div>
                 <div>
                   <span className="font-display font-bold text-primary-foreground text-sm">OliveBot AI Agent</span>
-                  <span className="block text-[10px] text-primary-foreground/40 -mt-0.5">Powered by Agentic AI</span>
+                  <span className="block text-[10px] text-primary-foreground/40 -mt-0.5">Powered by agentic exam guidance</span>
                 </div>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-primary-foreground/60 hover:text-primary-foreground">
-                <X className="h-4 w-4" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => navigate("/chat")}
+                  className="inline-flex items-center gap-1 rounded-full border border-primary-foreground/20 bg-primary/10 px-3 py-1 text-[11px] text-primary-foreground hover:bg-primary/20"
+                >
+                  <ArrowUpRight className="h-3.5 w-3.5" />
+                  Full view
+                </button>
+                <button onClick={() => setIsOpen(false)} className="text-primary-foreground/60 hover:text-primary-foreground">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
             </div>
 
             {/* Messages */}
@@ -219,20 +243,23 @@ const ChatWidget = () => {
         )}
       </AnimatePresence>
 
-      {/* FAB */}
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-4 right-4 z-50 w-14 h-14 rounded-full bg-gold text-accent-foreground shadow-gold flex items-center justify-center hover:bg-gold-light transition-colors relative"
-      >
-        {isOpen ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
-        {!isOpen && (
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-secondary rounded-full flex items-center justify-center">
-            <Sparkles className="h-2.5 w-2.5 text-secondary-foreground" />
-          </span>
-        )}
-      </motion.button>
+      {!isFullPage && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsOpen(!isOpen)}
+            className="w-14 h-14 rounded-full bg-gold text-accent-foreground shadow-gold flex items-center justify-center hover:bg-gold-light transition-colors"
+          >
+            {isOpen ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
+          {!isOpen && (
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-secondary rounded-full flex items-center justify-center">
+              <Sparkles className="h-2.5 w-2.5 text-secondary-foreground" />
+            </span>
+          )}
+          </motion.button>
+        </div>
+      )}
     </>
   );
 };

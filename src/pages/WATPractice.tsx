@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Timer, Brain, ArrowLeft, Loader2 } from "lucide-react";
 import { buildBackendUrl } from '@/lib/api';
+import { useAuth } from "@/contexts/AuthContext";
 
 interface WATResult {
   word: string;
@@ -18,6 +19,7 @@ import { toast } from "sonner";
 
 const WATPractice = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [watWords, setWatWords] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -27,6 +29,7 @@ const WATPractice = () => {
   const [isFinished, setIsFinished] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSavingToBackend, setIsSavingToBackend] = useState(false);
 
   // Fetch WAT words on component mount
   useEffect(() => {
@@ -55,16 +58,56 @@ const WATPractice = () => {
     fetchWATWords();
   }, []);
 
+  const saveSessionToBackend = useCallback(async (finalResults: WATResult[]) => {
+    if (!user?.id || isSavingToBackend) return;
+    
+    setIsSavingToBackend(true);
+    try {
+      // Calculate session statistics
+      const totalScore = finalResults.reduce((acc, r) => acc + ((r.sentiment + 1) * 50), 0) / finalResults.length;
+      
+      const res = await fetch(buildBackendUrl('/log-performance'), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: user.id,
+          session_type: "WAT",
+          score: Math.round(totalScore),
+          details: {
+            total_responses: finalResults.length,
+            average_sentiment: (finalResults.reduce((acc, r) => acc + r.sentiment, 0) / finalResults.length).toFixed(2),
+            responses: finalResults,
+            primary_olqs: [...new Set(finalResults.map(r => r.primary_olq))]
+          },
+          timestamp: new Date().toISOString()
+        }),
+      });
+      
+      if (res.ok) {
+        toast.success("Session saved to your performance history!");
+      }
+    } catch (err) {
+      console.error("Failed to save session to backend:", err);
+      toast.error("Could not save to server, but session is stored locally");
+    } finally {
+      setIsSavingToBackend(false);
+    }
+  }, [user?.id, isSavingToBackend]);
+
   const handleFinish = useCallback((finalResults: WATResult[]) => {
     setIsFinished(true);
+    saveSessionToBackend(finalResults);
     setTimeout(() => {
       navigate("/ssb-practice", { state: { results: finalResults } });
     }, 2000);
-  }, [navigate]);
+  }, [navigate, saveSessionToBackend]);
 
   const handleNext = useCallback(async () => {
     setIsAnalyzing(true);
     let updatedResults = [...results];
+
+    const timeTaken = 15 - timeLeft;
+    console.log(`TC-02 Evidence - Stimulus: ${watWords[currentIndex]}, Latency: ${timeTaken.toFixed(2)}s`);
 
     try {
       const res = await fetch(buildBackendUrl('/analyze-wat'), {
@@ -72,8 +115,8 @@ const WATPractice = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           text: response || "No response",
-          time_taken: 15 - timeLeft,
-          user_id: "guest",
+          time_taken: timeTaken,
+          user_id: user?.id || "guest",
           session_type: "WAT"
         }),
       });
@@ -113,7 +156,7 @@ const WATPractice = () => {
         handleFinish(updatedResults);
       }
     }
-  }, [currentIndex, response, results, watWords, timeLeft, handleFinish]);
+  }, [currentIndex, response, results, watWords, timeLeft, handleFinish, user?.id]);
 
   useEffect(() => {
     if (timeLeft > 0 && !isFinished && watWords.length > 0) {

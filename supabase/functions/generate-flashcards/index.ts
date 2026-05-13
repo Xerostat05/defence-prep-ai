@@ -5,6 +5,16 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+function parseJsonFromText(text: string) {
+  try {
+    const match = text.match(/```json\s*([\s\S]*?)```/);
+    const payload = match ? match[1].trim() : text.trim();
+    return JSON.parse(payload);
+  } catch {
+    return null;
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -14,7 +24,7 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const numCards = Math.min(count || 10, 20);
-    const areasText = weak_areas?.length ? weak_areas.join(", ") : "general topics";
+    const areasText = weak_areas?.length ? weak_areas.join(", ") : "fundamental concepts and priority topics";
 
     const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -27,11 +37,11 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a defence exam flashcard generator. Create concise, exam-relevant flashcards.",
+            content: "You are a defence exam flashcard generator. Create concise, exam-relevant flashcards that help build recall for core concepts, dates, formulas, and reasoning.",
           },
           {
             role: "user",
-            content: `Generate ${numCards} flashcards for ${exam_type || "NDA"} exam preparation focusing on: ${areasText}. Each card should have a clear question and a concise answer (1-3 sentences). Cover key facts, formulas, dates, and concepts.`,
+            content: `Create ${numCards} flashcards for ${exam_type || "defence exam"} preparation. Focus on: ${areasText}. Each card should include a specific question and a concise answer (1-3 sentences). Return the output as JSON with a 'cards' array.`,
           },
         ],
         tools: [
@@ -69,12 +79,14 @@ serve(async (req) => {
     if (!resp.ok) {
       if (resp.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limited, please try again later." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (resp.status === 402) {
         return new Response(JSON.stringify({ error: "AI credits exhausted." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 402,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       throw new Error("AI gateway error");
@@ -82,11 +94,17 @@ serve(async (req) => {
 
     const data = await resp.json();
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    const result = toolCall
-      ? typeof toolCall.function.arguments === "string"
-        ? JSON.parse(toolCall.function.arguments)
-        : toolCall.function.arguments
-      : { cards: [] };
+    let result: any = null;
+
+    if (toolCall) {
+      const rawArgs = typeof toolCall.function.arguments === "string" ? toolCall.function.arguments : JSON.stringify(toolCall.function.arguments);
+      result = parseJsonFromText(rawArgs) || JSON.parse(rawArgs);
+    }
+
+    if (!result) {
+      const fallbackText = data.choices?.[0]?.message?.content || "";
+      result = parseJsonFromText(fallbackText) || { cards: [] };
+    }
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -94,7 +112,8 @@ serve(async (req) => {
   } catch (e) {
     console.error("generate-flashcards error:", e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });

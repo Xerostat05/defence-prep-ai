@@ -117,7 +117,8 @@ const Flashcards = () => {
       }
 
       const { data, error } = await supabase.functions.invoke("generate-flashcards", {
-        body: { exam_type: examType, weak_areas: weakAreas, count: 10 },
+        body: JSON.stringify({ exam_type: examType, weak_areas: weakAreas, count: 10 }),
+        headers: { "Content-Type": "application/json" },
       });
 
       if (error) throw error;

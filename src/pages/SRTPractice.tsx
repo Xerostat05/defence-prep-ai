@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2, Shield, Timer } from "lucide-react";
 import { buildBackendUrl } from '@/lib/api';
+import { useAuth } from "@/contexts/AuthContext";
 
 interface SRTResult {
   situation: string;
@@ -18,6 +19,7 @@ import { toast } from "sonner";
 
 const SRTPractice = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   
   const [situations, setSituations] = useState<string[]>([]);
   const [index, setIndex] = useState(0);
@@ -28,6 +30,7 @@ const SRTPractice = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState(30);
   const [sessionTimeLeft, setSessionTimeLeft] = useState(1800);
+  const [isSavingToBackend, setIsSavingToBackend] = useState(false);
 
   // Fetch SRT situations on component mount
   useEffect(() => {
@@ -111,6 +114,40 @@ const SRTPractice = () => {
     fetchSRTSituations();
   }, []);
 
+  const saveSessionToBackend = useCallback(async (finalResults: SRTResult[]) => {
+    if (!user?.id || isSavingToBackend) return;
+    
+    setIsSavingToBackend(true);
+    try {
+      const totalScore = finalResults.reduce((acc, r) => acc + ((r.sentiment || 0) + 1) * 50, 0) / finalResults.length;
+      
+      const res = await fetch(buildBackendUrl('/log-performance'), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: user.id,
+          session_type: "SRT",
+          score: Math.round(totalScore || 0),
+          details: {
+            total_responses: finalResults.length,
+            responses: finalResults,
+            primary_olqs: [...new Set(finalResults.map(r => r.primary_olq).filter(Boolean))]
+          },
+          timestamp: new Date().toISOString()
+        }),
+      });
+      
+      if (res.ok) {
+        toast.success("SRT session saved to your performance history!");
+      }
+    } catch (err) {
+      console.error("Failed to save session to backend:", err);
+      toast.error("Could not save to server, but session is stored locally");
+    } finally {
+      setIsSavingToBackend(false);
+    }
+  }, [user?.id, isSavingToBackend]);
+
   const handleNext = useCallback(async (forceSubmit = false) => {
     if (!response.trim() && !forceSubmit) {
       toast.error("Please provide a response");
@@ -126,7 +163,7 @@ const SRTPractice = () => {
         body: JSON.stringify({
           text: answer,
           time_taken: 30 - timeLeft,
-          user_id: "guest",
+          user_id: user?.id || "guest",
           session_type: "SRT"
         }),
       });
@@ -140,6 +177,7 @@ const SRTPractice = () => {
         setTimeLeft(30);
       } else {
         setResults(updated);
+        saveSessionToBackend(updated);
         setIsFinished(true);
         setTimeout(() => {
           navigate("/ssb-practice", { state: { results: updated } });
@@ -156,6 +194,7 @@ const SRTPractice = () => {
         setTimeLeft(30);
       } else {
         setResults(updated);
+        saveSessionToBackend(updated);
         setIsFinished(true);
         setTimeout(() => {
           navigate("/ssb-practice", { state: { results: updated } });
@@ -164,7 +203,7 @@ const SRTPractice = () => {
     } finally {
       setIsAnalyzing(false);
     }
-  }, [response, results, index, situations, sessionTimeLeft, timeLeft, navigate]);
+  }, [response, results, index, situations, sessionTimeLeft, timeLeft, navigate, user?.id, saveSessionToBackend]);
 
   useEffect(() => {
     if (isFinished || situations.length === 0) {

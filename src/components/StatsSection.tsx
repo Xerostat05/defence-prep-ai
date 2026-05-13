@@ -3,10 +3,10 @@ import { motion, useInView } from "framer-motion";
 import { Users, BookOpen, Target, Award, Brain } from "lucide-react";
 
 const stats = [
-  { icon: Users, value: 50000, suffix: "+", label: "Active Aspirants" },
-  { icon: BookOpen, value: 10000, suffix: "+", label: "Practice Questions" },
-  { icon: Target, value: 500, suffix: "+", label: "Mock Tests" },
-  { icon: Award, value: 95, suffix: "%", label: "Success Rate" },
+  { icon: Users, value: 120, suffix: "+", label: "Active Aspirants" },
+  { icon: BookOpen, value: 650, suffix: "+", label: "Practice Questions" },
+  { icon: Target, value: 25, suffix: "+", label: "Practice Tests" },
+  { icon: Award, value: 72, suffix: "%", label: "Current Success Rate" },
   { icon: Brain, value: 24, suffix: "/7", label: "AI Assistance" },
 ];
 

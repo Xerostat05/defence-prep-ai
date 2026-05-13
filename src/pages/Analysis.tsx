@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { buildBackendUrl } from '@/lib/api';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
@@ -113,8 +114,60 @@ const Analysis = () => {
 
       const data = await response.json();
       setMetrics(data.metrics?.[0]);
-      
-      if (data.analyses?.length > 0) {
+
+      const { data: attemptData, error: attemptError } = await supabase
+        .from('test_attempts')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('completed_at', { ascending: true });
+
+      type RawAttempt = {
+        completed_at: string;
+        score: number;
+        sentiment_score?: number | null;
+        spontaneity_score?: number | null;
+        confidence_score?: number | null;
+      };
+
+      if (!attemptError && attemptData) {
+        const attemptSeries = (attemptData as RawAttempt[]).map((attempt) => ({
+          name: new Date(attempt.completed_at).toLocaleDateString(),
+          score: attempt.score,
+          sentiment: attempt.sentiment_score ? ((attempt.sentiment_score + 1) * 50) : 50,
+          spontaneity: attempt.spontaneity_score ?? attempt.confidence_score ?? 50,
+          confidence: attempt.confidence_score ?? 50,
+        }));
+
+        setPerformanceData(attemptSeries);
+        setMetrics((prev) => ({
+          ...prev,
+          total_attempts: attemptSeries.length,
+          average_score: attemptSeries.length
+            ? attemptSeries.reduce((sum, item) => sum + item.score, 0) / attemptSeries.length
+            : prev?.average_score,
+          best_score: attemptSeries.length
+            ? Math.max(prev?.best_score || 0, ...attemptSeries.map((item) => item.score))
+            : prev?.best_score,
+          streak_days: attemptSeries.length > 1
+            ? Math.max(0, attemptSeries.length - 1)
+            : prev?.streak_days,
+        }));
+
+        if (!data.analyses?.length && attemptSeries.length > 0) {
+          const latestAttempt = attemptSeries[attemptSeries.length - 1];
+          setAnalysisData((current) => ({
+            overall_score: latestAttempt.score / 10,
+            confidence_score: latestAttempt.confidence,
+            olq_indicators: current?.olq_indicators || [],
+            sentiment_score: (latestAttempt.sentiment / 50) - 1,
+            spontaneity_score: latestAttempt.spontaneity,
+            primary_finding: 'Your latest attempt was used to refresh this summary with current progress.',
+            detailed_analysis: `Latest score: ${latestAttempt.score}%. Track the next test to see whether your progress is improving or if a topic requires more focus.`,
+          }));
+        }
+      }
+
+      if (data.analyses?.length > 0 && (!attemptData || attemptData.length === 0)) {
         const chartData = data.analyses.map((a: AnalysisRecord) => ({
           name: new Date(a.created_at).toLocaleDateString(),
           score: a.overall_score,

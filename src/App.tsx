@@ -30,6 +30,7 @@ import GDSimulator from "./pages/GDSimulator";
 import PIPreparation from "./pages/PIPreparation";
 import InterviewCoaching from "./pages/InterviewCoaching";
 import HolisticAnalysis from "./pages/HolisticAnalysis";
+import Chat from "./pages/Chat";
 
 
 const queryClient = new QueryClient();
@@ -63,6 +64,7 @@ const App = () => (
             <Route path="/gd-simulator" element={<GDSimulator />} />
             <Route path="/pi-preparation" element={<PIPreparation />} />
             <Route path="/interview-coaching" element={<InterviewCoaching />} />
+            <Route path="/chat" element={<Chat />} />
             <Route path="/about" element={<About />} />
             <Route path="/holistic-analysis" element={<HolisticAnalysis />} />
             
